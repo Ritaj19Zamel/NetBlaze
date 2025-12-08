@@ -1,4 +1,5 @@
-﻿using NetBlaze.Application.Interfaces.General;
+using Microsoft.Extensions.Configuration;
+using NetBlaze.Application.Interfaces.General;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
 using NetBlaze.Domain.Entities;
 using NetBlaze.SharedKernel.Dtos.OTP.Requests;
@@ -11,6 +12,8 @@ namespace NetBlaze.Application.Services
     public class RandomChecksService : IRandomChecksService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly OtpSettings _otpSettings;
+
         #region HelperFunction
         private string GenerateOtp()
         {
@@ -18,14 +21,15 @@ namespace NetBlaze.Application.Services
         }
         #endregion
 
-        public RandomChecksService(IUnitOfWork unitOfWork)
+        public RandomChecksService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork; 
+            _otpSettings = configuration.GetSection(nameof(OtpSettings)).Get<OtpSettings>()!;
         }
 
         public async Task<ApiResponse<object>> GenerateOTP(GenerateOtpRequestDto generateOtpRequestDto, CancellationToken cancellationToken = default)
         {
-            int expireMinutes = 5;
+            int expireMinutes = _otpSettings.ExpiryInMinutes;
 
             var randomCheck = await _unitOfWork.Repository.AddAsync<RandomChecks>(new RandomChecks()
             {
