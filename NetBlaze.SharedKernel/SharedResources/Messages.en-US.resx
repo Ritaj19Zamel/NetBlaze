@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DescriptionLength" xml:space="preserve">
+    <value>Description must not exceed 500 characters</value>
+  </data>
+  <data name="NoSampleFound" xml:space="preserve">
+    <value>No sample found</value>
+  </data>
+  <data name="SampleAddedSuccessfully" xml:space="preserve">
+    <value>Sample added successfully</value>
+  </data>
+  <data name="SampleDeletedSuccessfully" xml:space="preserve">
+    <value>Sample deleted successfully</value>
+  </data>
+  <data name="SampleNotFound" xml:space="preserve">
+    <value>Sample not found</value>
+  </data>
+  <data name="SampleUpdatedSuccessfully" xml:space="preserve">
+    <value>Sample updated successfully</value>
+  </data>
+  <data name="FieldRequired" xml:space="preserve">
+    <value>This field is required</value>
+  </data>
+  <data name="NameLength" xml:space="preserve">
+    <value>Name must not exceed 300 characters</value>
+  </data>
+  <data name="ErrorOccurredInServer" xml:space="preserve">
+    <value>An error occurred on the server, please try again</value>
+  </data>
+  <data name="SampleNotModified" xml:space="preserve">
+    <value>No changes were made to the sample</value>
+  </data>
+  <data name="EmailExists" xml:space="preserve">
+    <value>This email is already registered</value>
+  </data>
+  <data name="DepartmentNotExists" xml:space="preserve">
+    <value>Department does not exist</value>
+  </data>
+  <data name="RoleNotExists" xml:space="preserve">
+    <value>Role does not exist</value>
+  </data>
+  <data name="ManagerNotExists" xml:space="preserve">
+    <value>Manager does not exist</value>
+  </data>
+  <data name="UserNotAdded" xml:space="preserve">
+    <value>User could not be created</value>
+  </data>
+  <data name="RoleNotAssigned" xml:space="preserve">
+    <value>Role could not be assigned</value>
+  </data>
+  <data name="UserAdded" xml:space="preserve">
+    <value>User registered successfully</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Invalid email or password</value>
+  </data>
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>Login successful</value>
+  </data>
+  <data name="InvalidEmailFormat" xml:space="preserve">
+    <value>The email format is invalid</value>
+  </data>
+  <data name="InvalidPasswordFormat" xml:space="preserve">
+    <value>The password format is invalid</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>The passwords do not match</value>
+  </data>
+  <data name="AccountLocked" xml:space="preserve">
+    <value>Your account is temporarily locked for security reasons. You can try to log in again soon</value>
+  </data>
+  <data name="EmailNotExists" xml:space="preserve">
+    <value>Email does not exist</value>
+  </data>
+  <data name="ResetEmailSent" xml:space="preserve">
+    <value>A password reset link has been sent to your email</value>
+  </data>
+  <data name="InvalidResetLink" xml:space="preserve">
+    <value>Invalid or expired password reset link</value>
+  </data>
+  <data name="PasswordResetFailed" xml:space="preserve">
+    <value>Failed to reset password. Please try again</value>
+  </data>
+  <data name="PasswordResetSuccess" xml:space="preserve">
+    <value>Your password has been successfully rese</value>
+  </data>
+  <data name="PhoneNumberAlreadyExists" xml:space="preserve">
+    <value>This phone number is already in use</value>
+  </data>
+  <data name="AttendanceRecorded" xml:space="preserve">
+    <value>Attendance recorded successfully</value>
+  </data>
+  <data name="InvalidToken" xml:space="preserve">
+    <value>Invalid or expired authentication token</value>
+  </data>
+  <data name="NoManagers" xml:space="preserve">
+    <value>No managers found</value>
+  </data>
+  <data name="NoRoles" xml:space="preserve">
+    <value>No roles available</value>
+  </data>
+  <data name="NoDepartments" xml:space="preserve">
+    <value>No departments found</value>
+  </data>
+  <data name="UserUpdated" xml:space="preserve">
+    <value>User updated successfully</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
+  <data name="NoVacation" xml:space="preserve">
+    <value>No vacation found</value>
+  </data>
+  <data name="VacationCreated" xml:space="preserve">
+    <value>Vacation has been created successfully</value>
+  </data>
+  <data name="VacationUpdated" xml:space="preserve">
+    <value>Vacation has been updated successfully</value>
+  </data>
+  <data name="VacationDeleted" xml:space="preserve">
+    <value>Vacation has been deleted successfully</value>
+  </data>
+  <data name="NoPolicies" xml:space="preserve">
+    <value>No policies available</value>
+  </data>
+  <data name="PolicyCreated" xml:space="preserve">
+    <value>Policy has been created successfully</value>
+  </data>
+  <data name="PolicyUpdated" xml:space="preserve">
+    <value>Policy has been updated successfully</value>
+  </data>
+  <data name="PolicyDeleted" xml:space="preserve">
+    <value>Policy has been deleted successfully</value>
+  </data>
+  <data name="PolicyNotFound" xml:space="preserve">
+    <value>Policy not found</value>
+  </data>
+  <data name="TodayIsVacation" xml:space="preserve">
+    <value>Today is an official vacation. Attendance cannot be recorded</value>
+  </data>
+  <data name="InvalidWorkTimeRange" xml:space="preserve">
+    <value>Invalid work time range. Start time must be earlier than end time</value>
+  </data>
+  <data name="InvalidRequiredHours" xml:space="preserve">
+    <value>Invalid required hours. The required working hours must be greater than zero</value>
+  </data>
+  <data name="PolicyCodeExists" xml:space="preserve">
+    <value>A policy with this code already exists</value>
+  </data>
+  <data name="PolicyOverlap" xml:space="preserve">
+    <value>This policy conflicts with an existing policy time range</value>
+  </data>
+  <data name="VacationInvalidRecurring" xml:space="preserve">
+    <value>Recurring vacation must have a DayName or a valid DayDate</value>
+  </data>
+  <data name="VacationDateRequired" xml:space="preserve">
+    <value>A date is required for a one-time vacation</value>
+  </data>
+  <data name="WeeklyVacationExists" xml:space="preserve">
+    <value>A weekly vacation for this day already exists</value>
+  </data>
+  <data name="YearlyVacationExists" xml:space="preserve">
+    <value>A yearly recurring vacation already exists for this date</value>
+  </data>
+  <data name="OneTimeVacationExists" xml:space="preserve">
+    <value>A one-time vacation already exists for this date</value>
+  </data>
+</root>
