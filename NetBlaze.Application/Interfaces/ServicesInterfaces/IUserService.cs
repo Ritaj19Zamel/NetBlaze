@@ -1,4 +1,5 @@
-﻿using NetBlaze.SharedKernel.Dtos.User.Requests;
+﻿using NetBlaze.SharedKernel.Dtos;
+using NetBlaze.SharedKernel.Dtos.User.Requests;
 using NetBlaze.SharedKernel.Dtos.User.Responses;
 using NetBlaze.SharedKernel.HelperUtilities.General;
 
@@ -8,6 +9,9 @@ namespace NetBlaze.Application.Interfaces.ServicesInterfaces
     {
         Task<ApiResponse<List<GetManagerResponseDto>>> GetManagersAsync(CancellationToken cancellationToken = default);
         Task<ApiResponse<object>> UpdateUserAsync(UpdateUserRequestDto updateUserRequestDto, CancellationToken cancellationToken = default);
+        Task<ApiResponse<object>> AddUserAsync(
+    AddUserRequestDto addUserRequestDto,
+    CancellationToken cancellationToken = default);
 
 
     }

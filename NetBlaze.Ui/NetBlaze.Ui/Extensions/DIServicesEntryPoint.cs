@@ -22,7 +22,7 @@ namespace NetBlaze.Ui.Extensions
             builder.Services.RegisterClientServices(urlConfiguration);
         }
 
-        public static void ConsumeServerServices(this WebApplication app)
+        public static void  ConsumeServerServices(this WebApplication app)
         {
             if (app.Environment.IsDevelopment())
             {

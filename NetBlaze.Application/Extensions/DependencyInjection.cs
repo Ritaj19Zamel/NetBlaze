@@ -17,8 +17,11 @@ namespace NetBlaze.Application.Extensions
             builder.Services.AddScoped<IUserContext, UserContext>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPolicyService, PolicyService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IVacationService,VacationService>();
             builder.Services.AddScoped<IRandomChecksService, RandomChecksService>();
+            builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+
 
         }
     }

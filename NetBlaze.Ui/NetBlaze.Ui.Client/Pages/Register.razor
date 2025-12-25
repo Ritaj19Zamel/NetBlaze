@@ -1,0 +1,77 @@
+﻿@page "/register"
+
+@using NetBlaze.SharedKernel.Dtos.Auth.Requests
+@using NetBlaze.SharedKernel.Dtos.Role.Responses
+@using NetBlaze.SharedKernel.Dtos.Department.Responses
+@using NetBlaze.SharedKernel.Dtos.User.Responses
+
+<MudPaper Elevation="4" Class="pa-6 mx-auto mt-10" Style="max-width:500px;">
+    <MudText Typo="Typo.h5" Align="Align.Center" Class="mb-4">
+        Create Account
+    </MudText>
+
+    <MudForm @ref="_form" Model="_model">
+
+        <MudTextField @bind-Value="_model.DisplayName" Label="Full Name" Required />
+        <MudTextField @bind-Value="_model.Email" Label="Email" Required />
+        <MudTextField @bind-Value="_model.PhoneNumber" Label="Phone Number" Required />
+
+        <MudTextField @bind-Value="_model.Password"
+                      Label="Password"
+                      InputType="InputType.Password"
+                      Required />
+
+        <MudTextField @bind-Value="_model.ConfirmPassword"
+                      Label="Confirm Password"
+                      InputType="InputType.Password"
+                      Required />
+
+        <!-- Role -->
+        <MudSelect T="long" Label="Role" Required @bind-Value="_model.RoleId">
+            @foreach (var role in _roles)
+            {
+                <MudSelectItem T="long" Value="@role.Id">@role.RoleName</MudSelectItem>
+            }
+        </MudSelect>
+
+        <!-- Manager -->
+        <MudSelect T="long?" Label="Manager" @bind-Value="_model.ManagerId">
+            <MudSelectItem T="long?" Value="@(null)">None</MudSelectItem>
+            @foreach (var manager in _mangers)
+            {
+                <MudSelectItem T="long?" Value="@manager.Id">@manager.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <!-- Department -->
+        <MudSelect T="long" Label="Department" Required @bind-Value="_model.DepartmentId">
+            @foreach (var dept in _departments)
+            {
+                <MudSelectItem T="long" Value="@dept.Id">@dept.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudTextField @bind-Value="_model.DeviceName" Label="Device Name" Required />
+        <MudTextField @bind-Value="_model.CertificatePassword"
+                      Label="Certificate Password"
+                      InputType="InputType.Password"
+                      Required />
+
+    </MudForm>
+
+    <MudButton FullWidth
+               Color="Color.Primary"
+               Variant="Variant.Filled"
+               Class="mt-4"
+               Disabled="_loading"
+               OnClick="RegisterAsync">
+        @if (_loading)
+        {
+            <MudProgressCircular Indeterminate Size="Size.Small" />
+        }
+        else
+        {
+            <span>Register</span>
+        }
+    </MudButton>
+</MudPaper>

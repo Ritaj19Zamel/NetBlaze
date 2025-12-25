@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NetBlaze.Application.Interfaces.General;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
+using NetBlaze.Domain.Entities;
 using NetBlaze.Domain.Entities.Identity;
 using NetBlaze.SharedKernel.Dtos.Auth.Requests;
 using NetBlaze.SharedKernel.Dtos.Auth.Responses;
@@ -37,43 +38,72 @@ namespace NetBlaze.Application.Services
 
         }
 
-        public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto registerRequestDto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(
+            RegisterRequestDto dto,
+            CancellationToken cancellationToken)
         {
+            // 1️⃣ Check email
+            var userExists = await _userManager.FindByEmailAsync(dto.Email);
+            if (userExists != null)
+                return ApiResponse<RegisterResponseDto>.ReturnFailureResponse(
+                    "userExists",
+                    HttpStatusCode.BadRequest);
+
+            // 2️⃣ Check phone number
+            var phoneExists = await _userManager.Users
+                .AnyAsync(u => u.PhoneNumber == dto.PhoneNumber, cancellationToken);
+
+            if (phoneExists)
+                return ApiResponse<RegisterResponseDto>.ReturnFailureResponse(
+                    "phoneExists",
+                    HttpStatusCode.BadRequest);
+
+            // 3️⃣ Create user
             var user = new User
             {
-                UserName = registerRequestDto.DisplayName,
-                DisplayName = registerRequestDto.DisplayName,
-                PhoneNumber = registerRequestDto.PhoneNumber,
-                Email = registerRequestDto.Email,
-                DepartmentId = registerRequestDto.DepartmentId,
-                ManagerId = registerRequestDto.ManagerId == 0 ? null : registerRequestDto.ManagerId
+                UserName = dto.Email,
+                Email = dto.Email,
+                DisplayName = dto.DisplayName,
+                PhoneNumber = dto.PhoneNumber,
+                DepartmentId = dto.DepartmentId,
+                ManagerId = dto.ManagerId,
+                EmailConfirmed = true,
+                UserDetail = new UserDetail
+                {
+                    DeviceName = dto.DeviceName,
+                    CertificatePassword = dto.CertificatePassword
+                }
             };
-            
-            var createResult = await _userManager.CreateAsync(user, registerRequestDto.Password);
-            if (!createResult.Succeeded)
-            {
-                var errors = createResult.Errors.Select(e => e.Code).ToList();
 
-                if (errors.Contains("DuplicateUserName") || errors.Contains("DuplicateEmail"))
-                    return ApiResponse<RegisterResponseDto>.ReturnFailureResponse(Messages.EmailExists, HttpStatusCode.BadRequest);
-               
-                return ApiResponse<RegisterResponseDto>.ReturnFailureResponse(Messages.UserNotAdded, HttpStatusCode.BadRequest);
-            }
+            var result = await _userManager.CreateAsync(user, dto.Password);
 
-            var role = await _roleManager.FindByIdAsync(registerRequestDto.RoleId.ToString());
-            await _userManager.AddToRoleAsync(user, role?.Name!);
-            return ApiResponse<RegisterResponseDto>.ReturnSuccessResponse(new RegisterResponseDto
-            {
-                UserId = user.Id,
-                Email = user.Email!,
-                DisplayName = user.DisplayName,
-                DepartmentId = user.DepartmentId,
-                RoleId = registerRequestDto.RoleId,
-                ManagerId = user.ManagerId
-            }, Messages.UserAdded);
+            if (!result.Succeeded)
+                return ApiResponse<RegisterResponseDto>.ReturnFailureResponse(
+                    result.Errors.First().Description,
+                    HttpStatusCode.BadRequest);
 
+            var role = await _roleManager.FindByIdAsync(dto.RoleId.ToString());
+            if (role == null)
+                return ApiResponse<RegisterResponseDto>.ReturnFailureResponse(
+                    Messages.RoleNotExists,
+                    HttpStatusCode.BadRequest);
 
+            await _userManager.AddToRoleAsync(user, role.Name!);
+
+            return ApiResponse<RegisterResponseDto>.ReturnSuccessResponse(
+     new RegisterResponseDto
+     {
+         UserId = user.Id,
+         Email = user.Email,
+         DisplayName = user.DisplayName,
+         DepartmentId = user.DepartmentId,
+         ManagerId = user.ManagerId,
+         RoleId = dto.RoleId
+     });
         }
+
+
+
         public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto loginRequestDto, CancellationToken cancellationToken = default)
         {
             var user = await _userManager.Users

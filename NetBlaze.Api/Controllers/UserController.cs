@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
+using NetBlaze.SharedKernel.Dtos;
 using NetBlaze.SharedKernel.Dtos.User.Requests;
 using NetBlaze.SharedKernel.Dtos.User.Responses;
 using NetBlaze.SharedKernel.HelperUtilities.General;
@@ -27,5 +28,13 @@ namespace NetBlaze.Api.Controllers
         {
             return await _userService.UpdateUserAsync(updateUserRequestDto, cancellationToken);
         }
+        [HttpPost]
+        public async Task<ApiResponse<object>> AddUserAsync(
+    AddUserRequestDto addUserRequestDto,
+    CancellationToken cancellationToken = default)
+        {
+            return await _userService.AddUserAsync(addUserRequestDto, cancellationToken);
+        }
+
     }
 }

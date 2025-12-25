@@ -15,18 +15,21 @@ namespace NetBlaze.Application.Services
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<ApiResponse<List<GetDepartmentResponseDto>>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<List<GetDepartmentResponseDto>>> GetAllAsync(
+            CancellationToken cancellationToken = default)
         {
             var departments = await _unitOfWork.Repository
-                .GetMultipleAsync<Department,GetDepartmentResponseDto>(true,
-                     e => new GetDepartmentResponseDto()
-                     {
-                         Id = e.Id,
-                         Name = e.DepartmentName
-                     },cancellationToken);
-            if(departments == null)
-                return ApiResponse<List<GetDepartmentResponseDto>>.ReturnFailureResponse(Messages.NoDepartments, HttpStatusCode.NotFound);
-            return ApiResponse<List<GetDepartmentResponseDto>>.ReturnSuccessResponse(departments);
+                .GetMultipleAsync<Department, GetDepartmentResponseDto>(
+                    true,
+                    e => new GetDepartmentResponseDto
+                    {
+                        Id = e.Id,
+                        Name = e.DepartmentName
+                    },
+                    cancellationToken);
+
+            return ApiResponse<List<GetDepartmentResponseDto>>
+                .ReturnSuccessResponse(departments ?? new List<GetDepartmentResponseDto>());
         }
 
         public async Task<ApiResponse<GetDepartmentResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
