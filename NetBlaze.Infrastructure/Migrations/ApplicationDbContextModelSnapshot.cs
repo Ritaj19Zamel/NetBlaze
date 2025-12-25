@@ -22,6 +22,29 @@ namespace NetBlaze.Infrastructure.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("NetBlaze.Domain.Entities.AttendanceDailyReport", b =>
+                {
+                    b.Property<DateOnly>("AttendDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("CheckIn")
+                        .HasColumnType("time(6)");
+
+                    b.Property<TimeOnly?>("CheckOut")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_attendancedailyreport", (string)null);
+                });
+
             modelBuilder.Entity("NetBlaze.Domain.Entities.AttendencePolicyAction", b =>
                 {
                     b.Property<long>("Id")
@@ -51,6 +74,9 @@ namespace NetBlaze.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<long>("EmployeeAttendenceId")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
@@ -72,11 +98,11 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AttendenceId");
+                    b.HasIndex("EmployeeAttendenceId");
 
                     b.HasIndex("PolicyId");
 
-                    b.ToTable("AttendencePolicyActions");
+                    b.ToTable("AttendencePolicyActions", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Department", b =>
@@ -120,7 +146,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.EmployeeAttendence", b =>
@@ -171,7 +197,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EmployeeAttendences");
+                    b.ToTable("EmployeeAttendences", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Identity.Role", b =>
@@ -454,7 +480,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Policy", b =>
@@ -520,7 +546,7 @@ namespace NetBlaze.Infrastructure.Migrations
                     b.HasIndex("PolicyCode")
                         .IsUnique();
 
-                    b.ToTable("Policies");
+                    b.ToTable("Policies", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.RandomChecks", b =>
@@ -581,7 +607,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RandomChecks");
+                    b.ToTable("RandomChecks", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.RolePermission", b =>
@@ -626,7 +652,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("RolePermissions");
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.SampleEntity", b =>
@@ -691,7 +717,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SampleEntity");
+                    b.ToTable("SampleEntity", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.UserDetail", b =>
@@ -745,7 +771,7 @@ namespace NetBlaze.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserDetails");
+                    b.ToTable("UserDetails", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Vacation", b =>
@@ -797,85 +823,21 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vacations");
-                });
-
-            modelBuilder.Entity("NetBlaze.Domain.Entities.Views.AttendanceView", b =>
-                {
-                    b.Property<DateOnly>("AttendDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly?>("CheckIn")
-                        .HasColumnType("time(6)");
-
-                    b.Property<TimeOnly?>("CheckOut")
-                        .HasColumnType("time(6)");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("vw_attendancedailyreport", (string)null);
-                });
-
-            modelBuilder.Entity("NetBlaze.Domain.Entities.Views.CheckInViolationView", b =>
-                {
-                    b.Property<DateOnly>("AttendDate")
-                        .HasColumnType("date");
-
-                    b.Property<long>("AttendanceId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Clarification")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PolicyCode")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("PolicyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("PolicyName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("PolicyType")
-                        .HasColumnType("int");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<double>("ViolationValue")
-                        .HasColumnType("double");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("vw_employeecheckinviolations", (string)null);
+                    b.ToTable("Vacations", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.AttendencePolicyAction", b =>
                 {
                     b.HasOne("NetBlaze.Domain.Entities.EmployeeAttendence", "EmployeeAttendence")
                         .WithMany("AttendencePolicyActions")
-                        .HasForeignKey("AttendenceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("EmployeeAttendenceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("NetBlaze.Domain.Entities.Policy", "Policy")
                         .WithMany("AttendencePolicyActions")
                         .HasForeignKey("PolicyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("EmployeeAttendence");
