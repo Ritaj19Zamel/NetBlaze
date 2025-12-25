@@ -116,18 +116,25 @@ namespace NetBlaze.Application.Services
             var violationRecords = _unitOfWork.Repository.GetQueryable<CheckInViolationView>().AsNoTracking()
                 .Where(v => v.AttendDate >= getCheckInViolationsRequestDto.FromDate && 
                 v.AttendDate <= getCheckInViolationsRequestDto.ToDate)
-                .OrderBy(v => v.AttendDate)
+                .GroupBy(v => new
+                {
+                    v.UserId,
+                    v.UserName,
+                    v.PolicyId,
+                    v.PolicyName,
+                    v.PolicyCode
+                })
                 .Select(v => new GetCheckInViolationResponseDto
                 {
-                    UserId = v.UserId,
-                    UserName = v.UserName,
-                    PolicyId = v.PolicyId,
-                    PolicyName = v.PolicyName,
-                    PolicyCode = v.PolicyCode,
-                    AttendDate = v.AttendDate,
-                    ViolationValue = v.ViolationValue,
-                    Clarification = v.Clarification,
-                });
+                    UserId = v.Key.UserId,
+                    UserName = v.Key.UserName,
+                    PolicyId = v.Key.PolicyId,
+                    PolicyName = v.Key.PolicyName,
+                    PolicyCode = v.Key.PolicyCode,
+                    ViolationsCount = v.Count(),
+                    TotalViolationValue = v.Sum(x => x.ViolationValue),
+                })
+                .OrderBy(x => x.UserName);
 
             if (violationRecords == null || !violationRecords.Any())
             {
@@ -144,24 +151,31 @@ namespace NetBlaze.Application.Services
         public async Task<object> ApprovePolicyRequestAsync(ApprovePolicyRequestDto approvePolicyRequestDto,
             CancellationToken cancellationToken)
         {
-            var existAttendence = await _unitOfWork.Repository.AnyAsync<AttendencePolicyAction>(e =>
-                e.AttendenceId == approvePolicyRequestDto.AttendanceId &&
-                e.PolicyId == approvePolicyRequestDto.PolicyId, cancellationToken);
+            var violations = await _unitOfWork.Repository
+                            .GetQueryable<CheckInViolationView>()
+                            .Where(v =>
+                                v.UserId == approvePolicyRequestDto.UserId &&
+                                v.PolicyId == approvePolicyRequestDto.PolicyId &&
+                                v.AttendDate >= approvePolicyRequestDto.FromDate &&
+                                v.AttendDate <= approvePolicyRequestDto.ToDate)
+                            .Select(v => v.AttendanceId)
+                            .ToListAsync(cancellationToken);
 
-            if (existAttendence)
+            if (!violations.Any())
             {
                 return ApiResponse<object>.ReturnFailureResponse(Messages.PolicyAlreadyReviewed, HttpStatusCode.BadRequest);
             }
 
-            var policyAction = new AttendencePolicyAction
-            {
-                AttendenceId = approvePolicyRequestDto.AttendanceId,
-                PolicyId = approvePolicyRequestDto.PolicyId,
-                IsApplied = approvePolicyRequestDto.IsApplied,
-                Clarification = approvePolicyRequestDto.Clarification!
-            };
+            var policyActions = violations.Select(attendanceId =>
+                                   new AttendencePolicyAction
+                                   {
+                                       AttendenceId = attendanceId,
+                                       PolicyId = approvePolicyRequestDto.PolicyId,
+                                       IsApplied = approvePolicyRequestDto.IsApplied,
+                                       Clarification = approvePolicyRequestDto.Clarification
+                                   }).ToList();
 
-            await _unitOfWork.Repository.AddAsync<AttendencePolicyAction>(policyAction,cancellationToken);
+            _unitOfWork.Repository.AddRange(policyActions);
 
             await _unitOfWork.Repository.CompleteAsync(cancellationToken);
 

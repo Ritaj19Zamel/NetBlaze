@@ -13,6 +13,8 @@ namespace NetBlaze.Application.Extensions
             builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IAttendanceService, AttendanceService>();
             builder.Services.AddScoped<IUserContext, UserContext>();
             builder.Services.AddScoped<IPermissionService, PermissionService>();

@@ -3,7 +3,6 @@ namespace NetBlaze.SharedKernel.Dtos.Attendence.Responses
 {
     public sealed record GetCheckInViolationResponseDto
     {
-        public long AttendanceId { get; set; }
         public long UserId { get; set; }
         public string UserName { get; set; }
 
@@ -14,6 +13,7 @@ namespace NetBlaze.SharedKernel.Dtos.Attendence.Responses
         public DateOnly AttendDate { get; set; }
 
         public string Clarification { get; set; }
-        public double ViolationValue { get; set; }
+        public int ViolationsCount { get; set; }
+        public double TotalViolationValue { get; set; }
     }
 }

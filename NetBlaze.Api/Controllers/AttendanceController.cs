@@ -9,7 +9,7 @@ using NetBlaze.SharedKernel.HelperUtilities.General;
 
 namespace NetBlaze.Api.Controllers
 {
-    [DynamicAuthorize]
+  //  [DynamicAuthorize]
     public class AttendanceController : BaseNetBlazeController, IAttendanceService
     {
         
