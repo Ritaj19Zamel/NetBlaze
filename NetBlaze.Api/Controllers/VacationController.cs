@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
+using NetBlaze.Application.Mappings;
 using NetBlaze.SharedKernel.Dtos.Vacation.Requests;
 using NetBlaze.SharedKernel.Dtos.Vacation.Responses;
 using NetBlaze.SharedKernel.HelperUtilities.General;
@@ -16,32 +17,35 @@ namespace NetBlaze.Api.Controllers
         {
             _vacationService = vacationService;
         }
-        [HttpPost()]
-        public async Task<ApiResponse<string>> CreateAsync(CreateVacationRequestDto createVacationRequestDto, CancellationToken cancellationToken = default)
+        [HttpPost("createvacation")]
+        public async Task<ApiResponse<object>> CreateAsync(CreateVacationRequestDto createVacationRequestDto, CancellationToken cancellationToken = default)
         {
             return await _vacationService.CreateAsync(createVacationRequestDto, cancellationToken);
         }
 
-        [HttpDelete()]
-        public async Task<ApiResponse<string>> DeleteAsync(long id, CancellationToken cancellationToken = default)
+        [HttpDelete("deletevacation")]
+        public async Task<ApiResponse<object>> DeleteAsync(long id, CancellationToken cancellationToken = default)
         {
             return await _vacationService.DeleteAsync(id, cancellationToken);
         }
-        [HttpGet("vacations")]
-        public async Task<ApiResponse<List<GetVacationResponseDto>>> GetAllAsync(CancellationToken cancellationToken = default)
+        [HttpGet("getvacations")]
+        public async Task<ApiResponse<PaginatedList<GetVacationResponseDto>>> GetAllAsync(int PageNumber, int PageSize, CancellationToken cancellationToken = default)
         {
-            return await _vacationService.GetAllAsync(cancellationToken);
+            return await _vacationService.GetAllAsync(PageNumber, PageSize, cancellationToken);
         }
-        [HttpGet("{id:long}")]
+
+        [HttpGet("{id}")]
         public async Task<ApiResponse<GetVacationResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         {
             return await _vacationService.GetByIdAsync(id, cancellationToken);
         }
-        [HttpPut("{id:long}")]
+        [HttpPut("{id}")]
 
-        public async Task<ApiResponse<string>> UpdateAsync(long id, UpdateVacationRequestDto updateVacationRequestDto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> UpdateAsync(long id, UpdateVacationRequestDto updateVacationRequestDto, CancellationToken cancellationToken = default)
         {
             return await (_vacationService.UpdateAsync(id, updateVacationRequestDto, cancellationToken));
         }
+
+        
     }
 }

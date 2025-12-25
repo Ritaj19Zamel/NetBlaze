@@ -282,4 +282,31 @@
   <data name="OneTimeVacationExists" xml:space="preserve">
     <value>هناك إجازة ليوم واحد مسجلة لهذا التاريخ بالفعل</value>
   </data>
+  <data name="NoAttendanceRecordsNotFound" xml:space="preserve">
+    <value>لا توجد سجلات حضور للفترة المحددة</value>
+  </data>
+  <data name="PolicyAlreadyReviewed" xml:space="preserve">
+    <value>تم مراجعة هذا السجل لهذا البند مسبقًا</value>
+  </data>
+  <data name="PolicyReviewRecorded" xml:space="preserve">
+    <value>تم تسجيل مراجعة البند بنجاح</value>
+  </data>
+  <data name="ViolationRecordsNotFound" xml:space="preserve">
+    <value>لا توجد مخالفات دخول للفترة المحددة</value>
+  </data>
+  <data name="Checked" xml:space="preserve">
+    <value>تمت العملية بنجاح</value>
+  </data>
+  <data name="ExpiryOTP" xml:space="preserve">
+    <value>انتهت صلاحية رمز التحقق (OTP)</value>
+  </data>
+  <data name="InvalidOTP" xml:space="preserve">
+    <value>رمز التحقق (OTP) غير صالح</value>
+  </data>
+  <data name="NoChecksFound" xml:space="preserve">
+    <value>لا توجد عمليات تحقق ضمن المعايير المحددة</value>
+  </data>
+  <data name="NoUsersProvided" xml:space="preserve">
+    <value>لم يتم تقديم أي مستخدمين</value>
+  </data>
 </root>

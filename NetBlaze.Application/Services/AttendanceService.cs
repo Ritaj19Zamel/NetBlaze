@@ -1,9 +1,13 @@
 ﻿
 
+using Microsoft.EntityFrameworkCore;
 using NetBlaze.Application.Interfaces.General;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
+using NetBlaze.Application.Mappings;
 using NetBlaze.Domain.Entities;
-using NetBlaze.SharedKernel.Enums;
+using NetBlaze.Domain.Entities.Views;
+using NetBlaze.SharedKernel.Dtos.Attendence.Requests;
+using NetBlaze.SharedKernel.Dtos.Attendence.Responses;
 using NetBlaze.SharedKernel.HelperUtilities.General;
 using NetBlaze.SharedKernel.SharedResources;
 using System.Net;
@@ -21,61 +25,49 @@ namespace NetBlaze.Application.Services
             _userContext = userContext;
             _unitOfWork = unitOfWork;
         }
+
         #region HelperFunction
         private async Task<bool> IsTodayVacationAsync(DateOnly todayDate, CancellationToken cancellationToken)
         {
-            var todayName = DateTime.Now.DayOfWeek.ToString().ToLower();
+            var todayName = DateTime.Now.DayOfWeek;
 
             var weeklyVacation = await _unitOfWork.Repository.GetSingleAsync<Vacation>(true,
-                v =>v.IsRecurring == true && v.DayName.ToLower() == todayName,
-               cancellationToken);
+                v =>v.IsRecurring == true && 
+                v.DayName == todayName
+                ,cancellationToken);
+
             if (weeklyVacation != null)
+            {
                 return true;
+            }   
             var vacation = await _unitOfWork.Repository.GetSingleAsync<Vacation>(true,
-                v => v.DayDate != null && v.DayDate == todayDate, cancellationToken);
+                v => v.DayDate != null && 
+                v.DayDate == todayDate
+                , cancellationToken);
+
             return vacation != null;
         }
         #endregion
-        #region AttendencePolicy
-        private async Task ApplyAbsencePolicyAsync(long userId, DateOnly date, CancellationToken cancellationToken)
-        {
-            var dayPolicy = await _unitOfWork.Repository.GetSingleAsync<Policy>(
-                true, p => p.PolicyType == PolicyType.Absence,
-                cancellationToken);
-
-            var action = new AttendencePolicyAction
-            {
-                PolicyId = dayPolicy.Id,
-                AttendenceId = 0,
-                IsApplied = true,
-                Clarification = $"Absent on {date}"
-            };
-
-            await _unitOfWork.Repository.AddAsync(action, cancellationToken);
-            await _unitOfWork.Repository.CompleteAsync(cancellationToken);
-        }
-        //private async Task<Policy?> DetermineLatePolicyAsync(TimeOnly attendTime, CancellationToken cancellationToken)
-        //{
-        //    var basePolicy = await _unitOfWork.Repository.GetSingleAsync<Policy>(true,
-        //        p => p.PolicyType == PolicyType.WorkingHours, cancellationToken);
-        //    if (basePolicy == null)
-        //        return null;
-        //    var startTime = basePolicy.WorkStartTime;
-        //    var minutesLate = (attendTime.ToTimeSpan() - startTime.ToTimeSpan()).TotalMinutes;
-        //}
-
-        #endregion
-        public async Task<ApiResponse<string>> AddAttendanceAsync(CancellationToken cancellationToken = default)
+       
+        public async Task<ApiResponse<object>> AddAttendanceAsync(CancellationToken cancellationToken = default)
         {
             
             if (!_userContext.IsAuthenticated || _userContext.UserId == 0)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.InvalidToken, HttpStatusCode.Unauthorized);
-            var todayDate = DateOnly.FromDateTime(DateTime.Now);
-            bool isVacation = await IsTodayVacationAsync(todayDate, cancellationToken);
-            if (isVacation)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.TodayIsVacation, HttpStatusCode.BadRequest);
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.InvalidToken, HttpStatusCode.Unauthorized);
+            }
 
+            var todayDate = DateOnly.FromDateTime(DateTime.Now);
+
+            bool isVacation = await IsTodayVacationAsync(todayDate, cancellationToken);
+
+            if (isVacation)
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.TodayIsVacation, HttpStatusCode.BadRequest);
+            }
+                
             var todayTime = TimeOnly.FromDateTime(DateTime.Now);
+
             var attendance = new EmployeeAttendence
             {
                 UserId = _userContext.UserId,
@@ -84,24 +76,97 @@ namespace NetBlaze.Application.Services
             };
 
             await _unitOfWork.Repository.AddAsync<EmployeeAttendence>(attendance, cancellationToken);
+
             await _unitOfWork.Repository.CompleteAsync(cancellationToken);
 
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.AttendanceRecorded, Messages.AttendanceRecorded);
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.AttendanceRecorded, Messages.AttendanceRecorded);
         }
-        public async Task ProcessDailyAttendanceAsync(long userId, DateOnly date, CancellationToken cancellationToken)
+
+
+        public async Task<ApiResponse<PaginatedList<GetAttendanceResponseDto>>> GetAttendanceReportAsync(GetAttendanceRequestDto getAttendanceRequestDto
+            , CancellationToken cancellationToken = default)
         {
-            var attendence = await _unitOfWork.Repository.GetMultipleAsync<EmployeeAttendence>(
-                true,
-                x => x.UserId == userId && x.AttendDate == date,
-                cancellationToken);
-            if (attendence.Count ==0)
+            var attendanceRecords =  _unitOfWork.Repository.GetQueryable<AttendanceView>().AsNoTracking()
+                 .Where(a => a.AttendDate >= getAttendanceRequestDto.From && 
+                 a.AttendDate <= getAttendanceRequestDto.To)
+                 .OrderBy(a => a.AttendDate)
+                 .Select(a => new GetAttendanceResponseDto
+                 {
+                     UserId = a.UserId,
+                     DisplayName = a.DisplayName,
+                     Date = a.AttendDate,
+                     CheckIn = a.CheckIn,
+                     CheckOut = a.CheckOut
+                 });
+
+            if (attendanceRecords == null || !attendanceRecords.Any())
             {
-                await ApplyAbsencePolicyAsync(userId, date, cancellationToken);
-                return;
+                return ApiResponse<PaginatedList<GetAttendanceResponseDto>>.ReturnFailureResponse(Messages.NoAttendanceRecordsNotFound, HttpStatusCode.NotFound);
             }
-            var checkIn = attendence.MinBy(x => x.AttendTime);
-            var checkOut = attendence.MaxBy(x => x.AttendTime);
+
+            var result = await attendanceRecords.PaginatedListAsync(getAttendanceRequestDto.Pagination.PageNumber
+                , getAttendanceRequestDto.Pagination.PageSize);
+
+            return ApiResponse<PaginatedList<GetAttendanceResponseDto>>.ReturnSuccessResponse(result);
+        }
+        
+        public async Task<ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>>GetCheckInViolations(GetCheckInViolationsRequestDto getCheckInViolationsRequestDto
+            , CancellationToken cancellationToken = default)
+        {
+            var violationRecords = _unitOfWork.Repository.GetQueryable<CheckInViolationView>().AsNoTracking()
+                .Where(v => v.AttendDate >= getCheckInViolationsRequestDto.FromDate && 
+                v.AttendDate <= getCheckInViolationsRequestDto.ToDate)
+                .OrderBy(v => v.AttendDate)
+                .Select(v => new GetCheckInViolationResponseDto
+                {
+                    UserId = v.UserId,
+                    UserName = v.UserName,
+                    PolicyId = v.PolicyId,
+                    PolicyName = v.PolicyName,
+                    PolicyCode = v.PolicyCode,
+                    AttendDate = v.AttendDate,
+                    ViolationValue = v.ViolationValue,
+                    Clarification = v.Clarification,
+                });
+
+            if (violationRecords == null || !violationRecords.Any())
+            {
+                return ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>.ReturnFailureResponse(Messages.ViolationRecordsNotFound, HttpStatusCode.NotFound);
+            }
+
+            var result = await violationRecords.PaginatedListAsync(getCheckInViolationsRequestDto.Pagination.PageNumber
+                , getCheckInViolationsRequestDto.Pagination.PageSize);
+
+            return ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>.ReturnSuccessResponse(result);
 
         }
+
+        public async Task<object> ApprovePolicyRequestAsync(ApprovePolicyRequestDto approvePolicyRequestDto,
+            CancellationToken cancellationToken)
+        {
+            var existAttendence = await _unitOfWork.Repository.AnyAsync<AttendencePolicyAction>(e =>
+                e.AttendenceId == approvePolicyRequestDto.AttendanceId &&
+                e.PolicyId == approvePolicyRequestDto.PolicyId, cancellationToken);
+
+            if (existAttendence)
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.PolicyAlreadyReviewed, HttpStatusCode.BadRequest);
+            }
+
+            var policyAction = new AttendencePolicyAction
+            {
+                AttendenceId = approvePolicyRequestDto.AttendanceId,
+                PolicyId = approvePolicyRequestDto.PolicyId,
+                IsApplied = approvePolicyRequestDto.IsApplied,
+                Clarification = approvePolicyRequestDto.Clarification!
+            };
+
+            await _unitOfWork.Repository.AddAsync<AttendencePolicyAction>(policyAction,cancellationToken);
+
+            await _unitOfWork.Repository.CompleteAsync(cancellationToken);
+
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.PolicyReviewRecorded);
+        }
+
     }
 }

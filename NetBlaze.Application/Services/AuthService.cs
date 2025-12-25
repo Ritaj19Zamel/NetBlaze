@@ -102,11 +102,11 @@ namespace NetBlaze.Application.Services
 
             return ApiResponse<LoginResponseDto>.ReturnSuccessResponse(response, Messages.LoginSuccess);
         }
-        public async Task<ApiResponse<string>> ForgetPasswordAsync(ForgetPasswordRequestDto forgetPasswordRequestDto)
+        public async Task<ApiResponse<object>> ForgetPasswordAsync(ForgetPasswordRequestDto forgetPasswordRequestDto)
         {
             var user = await _userManager.FindByEmailAsync(forgetPasswordRequestDto.Email);
             if (user == null)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.EmailNotExists, HttpStatusCode.BadRequest);
+                return ApiResponse<object>.ReturnFailureResponse(Messages.EmailNotExists, HttpStatusCode.BadRequest);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             //Encode token so special characters (+, /, =) don’t break the URL
             var encodedToken = WebUtility.UrlEncode(token);
@@ -115,21 +115,21 @@ namespace NetBlaze.Application.Services
             var body = $"Click the link to reset your password: {resetUrl}";
             await _emailService.SendAsync(forgetPasswordRequestDto.Email, subject, body);
 
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.ResetEmailSent, Messages.ResetEmailSent);
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.ResetEmailSent, Messages.ResetEmailSent);
         }
-        public async Task<ApiResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto)
+        public async Task<ApiResponse<object>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto)
         {
             var user = await _userManager.FindByEmailAsync(resetPasswordRequestDto.Email);
             if (user == null)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.InvalidResetLink, HttpStatusCode.BadRequest);
+                return ApiResponse<object>.ReturnFailureResponse(Messages.InvalidResetLink, HttpStatusCode.BadRequest);
             var decodedToken = WebUtility.UrlDecode(resetPasswordRequestDto.Token);
 
             var result = await _userManager.ResetPasswordAsync(user, decodedToken, resetPasswordRequestDto.Password);
 
             if (!result.Succeeded)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.PasswordResetFailed, HttpStatusCode.BadRequest);
+                return ApiResponse<object>.ReturnFailureResponse(Messages.PasswordResetFailed, HttpStatusCode.BadRequest);
 
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.PasswordResetSuccess, Messages.PasswordResetSuccess);
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.PasswordResetSuccess, Messages.PasswordResetSuccess);
         }
 
     }

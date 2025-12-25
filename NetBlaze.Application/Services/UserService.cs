@@ -27,6 +27,7 @@ namespace NetBlaze.Application.Services
             _userManager = userManager;
             _roleManager = roleManager;
         }
+
         public async Task<ApiResponse<List<GetManagerResponseDto>>> GetManagersAsync(CancellationToken cancellationToken = default)
         {
             var managers = await _unitOfWork.Repository.GetMultipleAsync<User, GetManagerResponseDto>(true,
@@ -41,34 +42,42 @@ namespace NetBlaze.Application.Services
             return ApiResponse<List<GetManagerResponseDto>>.ReturnSuccessResponse(managers);
 
         }
-
-        public async Task<ApiResponse<string>> UpdateUserAsync(UpdateUserRequestDto dto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> UpdateUserAsync(UpdateUserRequestDto updateUserRequestDto, CancellationToken cancellationToken = default)
         {
             if (!_userContext.IsAuthenticated || _userContext.UserId == 0)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.InvalidToken, HttpStatusCode.Unauthorized);
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.InvalidToken, HttpStatusCode.Unauthorized);
+            }
+                
             var user = await _userManager.Users
                 .Include(u => u.UserDetail)
                 .Include(u => u.UserRoles)
                 .FirstOrDefaultAsync(u => u.Id == _userContext.UserId, cancellationToken);
+
             if(user == null)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.UserNotFound, HttpStatusCode.NotFound);
-            user.DisplayName = dto.DisplayName;
-            user.PhoneNumber = dto.PhoneNumber;
-            user.DepartmentId = dto.DepartmentId;
-            user.ManagerId = dto.ManagerId == 0 ? null : dto.ManagerId;
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.UserNotFound, HttpStatusCode.NotFound);
+            }
+                
+            user.DisplayName = updateUserRequestDto.DisplayName;
+            user.PhoneNumber = updateUserRequestDto.PhoneNumber;
+            user.DepartmentId = updateUserRequestDto.DepartmentId;
+            user.ManagerId = updateUserRequestDto.ManagerId == 0 ? null : updateUserRequestDto.ManagerId;
+
             if (user.UserDetail == null)
                 user.UserDetail = new UserDetail { UserId = user.Id };
-            user.UserDetail.DeviceName = dto.DeviceName;
-            user.UserDetail.CertificatePassword = dto.CertificatePassword;
+            user.UserDetail.DeviceName = updateUserRequestDto.DeviceName;
+            user.UserDetail.CertificatePassword = updateUserRequestDto.CertificatePassword;
+
             var currentRoles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
-            var newRole = await _roleManager.FindByIdAsync(dto.RoleId.ToString());
+            var newRole = await _roleManager.FindByIdAsync(updateUserRequestDto.RoleId.ToString());
             await _userManager.AddToRoleAsync(user, newRole.Name);
 
             await _userManager.UpdateAsync(user);
 
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.UserUpdated, Messages.UserUpdated);
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.UserUpdated, Messages.UserUpdated);
 
         }
     }

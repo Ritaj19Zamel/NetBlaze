@@ -7,7 +7,8 @@ namespace NetBlaze.Application.Interfaces.ServicesInterfaces
     public interface IUserService
     {
         Task<ApiResponse<List<GetManagerResponseDto>>> GetManagersAsync(CancellationToken cancellationToken = default);
-        Task<ApiResponse<string>> UpdateUserAsync(UpdateUserRequestDto dto, CancellationToken cancellationToken = default);
+        Task<ApiResponse<object>> UpdateUserAsync(UpdateUserRequestDto updateUserRequestDto, CancellationToken cancellationToken = default);
+
 
     }
 }

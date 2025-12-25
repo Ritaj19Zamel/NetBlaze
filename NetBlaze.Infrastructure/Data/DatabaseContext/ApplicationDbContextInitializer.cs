@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using NetBlaze.Application.Interfaces.General;
 using NetBlaze.Domain.Entities;
 using NetBlaze.Domain.Entities.Identity;
+using NetBlaze.SharedKernel.Enums;
 
 
 namespace NetBlaze.Infrastructure.Data.DatabaseContext
@@ -54,6 +55,7 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
             // WARNING: Missing with methods order can lead to errors when seeding the database for the first time.
 
             await TrySeedSystemPredefinedRolesAsync();
+           
 
             await TrySeedRootAccountAsync();
         }
@@ -68,5 +70,6 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
         {
 
         }
+        
     }
 }

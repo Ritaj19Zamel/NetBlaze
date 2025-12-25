@@ -1,12 +1,15 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using NetBlaze.Api.Filters;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
+using NetBlaze.Application.Mappings;
 using NetBlaze.SharedKernel.Dtos.Policy.Requests;
 using NetBlaze.SharedKernel.Dtos.Policy.Responses;
 using NetBlaze.SharedKernel.HelperUtilities.General;
 
 namespace NetBlaze.Api.Controllers
 {
+    [DynamicAuthorize]
 
     public class PolicyController : BaseNetBlazeController, IPolicyService
     {
@@ -15,33 +18,34 @@ namespace NetBlaze.Api.Controllers
         {
            _policyService = policyService;
         }
-        [HttpPost("")]
-        public async Task<ApiResponse<string>> CreateAsync(CreatePolicyRequestDto createPolicyRequestDto
+        [HttpPost("createpolicy")]
+        public async Task<ApiResponse<object>> CreateAsync(CreatePolicyRequestDto createPolicyRequestDto
             , CancellationToken cancellationToken = default)
         {
             return await _policyService.CreateAsync(createPolicyRequestDto , cancellationToken);
         }
-        [HttpDelete("{id:long}")]
+        
 
-        public async Task<ApiResponse<string>> DeleteAsync(long id, CancellationToken cancellationToken = default)
-        {
-            return await _policyService.DeleteAsync(id, cancellationToken);
-        }
-        [HttpGet("policies")]
-
-        public async Task<ApiResponse<List<GetPolicyResponseDto>>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            return await _policyService.GetAllAsync(cancellationToken);
-        }
-        [HttpGet("{id:long}")]
+        [HttpGet("{id}")]
         public async Task<ApiResponse<GetPolicyResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         {
             return await _policyService.GetByIdAsync(id, cancellationToken);
         }
-        [HttpPut("{id:long}")]
-        public async Task<ApiResponse<string>> UpdateAsync(long id, UpdatePolicyRequestDto updatePolicyRequestDto, CancellationToken cancellationToken = default)
+        [HttpPut("{id}")]
+        public async Task<ApiResponse<object>> UpdateAsync(long id, UpdatePolicyRequestDto updatePolicyRequestDto, CancellationToken cancellationToken = default)
         {
             return await _policyService.UpdateAsync(id, updatePolicyRequestDto, cancellationToken);
+        }
+        [HttpDelete("{id}")]
+
+        public async Task<ApiResponse<object>> DeleteAsync(long id, CancellationToken cancellationToken = default)
+        {
+            return await _policyService.DeleteAsync(id, cancellationToken);
+        }
+        [HttpGet("getpolicies")]
+        public async Task<ApiResponse<PaginatedList<GetPolicyResponseDto>>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        {
+            return await _policyService.GetAllAsync(pageNumber, pageSize, cancellationToken);
         }
     }
 }

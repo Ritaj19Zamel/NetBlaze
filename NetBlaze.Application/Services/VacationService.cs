@@ -1,6 +1,8 @@
 ﻿using NetBlaze.Application.Interfaces.General;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
+using NetBlaze.Application.Mappings;
 using NetBlaze.Domain.Entities;
+using NetBlaze.SharedKernel.Dtos.General;
 using NetBlaze.SharedKernel.Dtos.Vacation.Requests;
 using NetBlaze.SharedKernel.Dtos.Vacation.Responses;
 using NetBlaze.SharedKernel.HelperUtilities.General;
@@ -16,36 +18,43 @@ namespace NetBlaze.Application.Services
         {
             _unitOfWork = unitOfWork;
         }
-        #region MyRegion
-        private async Task<ApiResponse<string>?> ValidateVacationAsync(VacationValidation validation, CancellationToken cancellationToken)
+        #region HelperFunction
+        private async Task<ApiResponse<object>?> ValidateVacationAsync(VacationValidationDto validation, CancellationToken cancellationToken)
         {
             if (validation.IsRecurring)
             {
-                // Weekly recurring MUST have DayName
-                // Yearly recurring MUST have DayDate
-                if (string.IsNullOrWhiteSpace(validation.DayName) && validation.DayDate == null)
-                    return ApiResponse<string>.ReturnFailureResponse(Messages.VacationInvalidRecurring, HttpStatusCode.BadRequest);
+                if (validation.DayName == null && validation.DayDate == null)
+                {
+                    return ApiResponse<object>.ReturnFailureResponse(Messages.VacationInvalidRecurring, HttpStatusCode.BadRequest);
+                }
+                    
             }
             else
             {
                 if (validation.DayDate == null)
-                    return ApiResponse<string>.ReturnFailureResponse(Messages.VacationDateRequired, HttpStatusCode.BadRequest);
+                {
+                    return ApiResponse<object>.ReturnFailureResponse(Messages.VacationDateRequired, HttpStatusCode.BadRequest);
+                }
+                    
             }
 
-            if (validation.IsRecurring && !string.IsNullOrWhiteSpace(validation.DayName))
+            if (validation.IsRecurring && validation.DayName != null)
             {
                 var existsWeekly = await _unitOfWork.Repository.GetSingleAsync<Vacation>(
                     true,
                     x => x.IsRecurring == true &&
-                         x.DayName!.ToLower() == validation.DayName.ToLower() &&
+                         x.DayName == validation.DayName &&
                          (validation.VacationId == null || x.Id != validation.VacationId),
                     cancellationToken);
 
                 if (existsWeekly != null)
-                    return ApiResponse<string>.ReturnFailureResponse(Messages.WeeklyVacationExists, HttpStatusCode.BadRequest);
+                {
+                    return ApiResponse<object>.ReturnFailureResponse(Messages.WeeklyVacationExists, HttpStatusCode.BadRequest);
+                }
+                    
             }
 
-            if (validation.IsRecurring && validation.DayDate != null && string.IsNullOrWhiteSpace(validation.DayName))
+            if (validation.IsRecurring && validation.DayDate != null && validation.DayName == null)
             {
                 var month = validation.DayDate.Value.Month;
                 var day = validation.DayDate.Value.Day;
@@ -60,7 +69,10 @@ namespace NetBlaze.Application.Services
                     cancellationToken);
 
                 if (existsYearly != null)
-                    return ApiResponse<string>.ReturnFailureResponse(Messages.YearlyVacationExists, HttpStatusCode.BadRequest);
+                {
+                    return ApiResponse<object>.ReturnFailureResponse(Messages.YearlyVacationExists, HttpStatusCode.BadRequest);
+                }
+                    
             }
 
             if (!validation.IsRecurring && validation.DayDate != null)
@@ -73,16 +85,18 @@ namespace NetBlaze.Application.Services
                     cancellationToken);
 
                 if (existsOneTime != null)
-                    return ApiResponse<string>.ReturnFailureResponse(Messages.OneTimeVacationExists, HttpStatusCode.BadRequest);
+                {
+                    return ApiResponse<object>.ReturnFailureResponse(Messages.OneTimeVacationExists, HttpStatusCode.BadRequest);
+                }
+                    
             }
 
             return null; 
         }
-
         #endregion
-        public async Task<ApiResponse<string>> CreateAsync(CreateVacationRequestDto createVacationRequestDto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> CreateAsync(CreateVacationRequestDto createVacationRequestDto, CancellationToken cancellationToken = default)
         {
-            var validationResult = await ValidateVacationAsync(new VacationValidation
+            var validationResult = await ValidateVacationAsync(new VacationValidationDto
             {
                 DayName = createVacationRequestDto.DayName,
                 DayDate = createVacationRequestDto.DayDate,
@@ -91,7 +105,10 @@ namespace NetBlaze.Application.Services
             }, cancellationToken);
 
             if (validationResult != null)
+            {
                 return validationResult;
+            }
+                
             var vacation = new Vacation
             {
                 DayName = createVacationRequestDto.DayName,
@@ -102,23 +119,30 @@ namespace NetBlaze.Application.Services
             await _unitOfWork.Repository.AddAsync(vacation, cancellationToken);
             await _unitOfWork.Repository.CompleteAsync();
 
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.VacationCreated, Messages.VacationCreated);
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.VacationCreated, Messages.VacationCreated);
         }
-        public async Task<ApiResponse<List<GetVacationResponseDto>>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<PaginatedList<GetVacationResponseDto>>>GetAllAsync(int PageNumber, int PageSize
+            , CancellationToken cancellationToken = default)
         {
-            var vacations = await _unitOfWork.Repository.GetMultipleAsync<Vacation, GetVacationResponseDto>(true,
-                v => new GetVacationResponseDto()
-                {
-                    Id = v.Id,
-                    DayName = v.DayName,
-                    DayDate = v.DayDate,
-                    IsRecurring = v.IsRecurring,
-                    IsVacation = v.IsVacation,
-                }, cancellationToken);
-            if(vacations == null)
-                return ApiResponse<List<GetVacationResponseDto>>.ReturnFailureResponse(Messages.NoVacation, HttpStatusCode.NotFound);
-            return ApiResponse<List<GetVacationResponseDto>>.ReturnSuccessResponse(vacations);
-        
+            var vacations = _unitOfWork.Repository
+                        .GetQueryable<Vacation>()
+                        .OrderBy(v => v.Id)
+                        .Select(v => new GetVacationResponseDto
+                        {
+                            Id = v.Id,
+                            DayName = v.DayName,
+                            DayDate = v.DayDate,
+                            IsRecurring = v.IsRecurring,
+                            IsVacation = v.IsVacation,
+                        });
+
+
+
+            var result = await vacations.PaginatedListAsync(PageNumber, PageSize);
+
+            return ApiResponse<PaginatedList<GetVacationResponseDto>>.ReturnSuccessResponse(result);
+
+
         }
         public async Task<ApiResponse<GetVacationResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         {
@@ -131,17 +155,23 @@ namespace NetBlaze.Application.Services
                     IsRecurring = v.IsRecurring,
                     IsVacation = v.IsVacation,
                 }, cancellationToken);
+
             if (vacation == null)
+            {
                 return ApiResponse<GetVacationResponseDto>.ReturnFailureResponse(Messages.NoVacation, HttpStatusCode.NotFound);
+            }
+                
             return ApiResponse<GetVacationResponseDto>.ReturnSuccessResponse(vacation);
         }
-        public async Task<ApiResponse<string>> UpdateAsync(long id, UpdateVacationRequestDto updateVacationRequestDto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> UpdateAsync(long id, UpdateVacationRequestDto updateVacationRequestDto, CancellationToken cancellationToken = default)
         {
             var vacation = await _unitOfWork.Repository.GetByIdAsync<Vacation>(false, id, cancellationToken);
             if (vacation == null)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.NoVacation, HttpStatusCode.NotFound);
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.NoVacation, HttpStatusCode.NotFound);
+            }
 
-            var validationResult = await ValidateVacationAsync(new VacationValidation
+            var validationResult = await ValidateVacationAsync(new VacationValidationDto
             {
                 VacationId = id,
                 DayName = updateVacationRequestDto.DayName,
@@ -150,35 +180,38 @@ namespace NetBlaze.Application.Services
             }, cancellationToken);
 
             if (validationResult != null)
+            {
                 return validationResult;
+            }
+                
 
             vacation.DayName = updateVacationRequestDto.DayName;
             vacation.DayDate = updateVacationRequestDto.DayDate;
             vacation.IsVacation = updateVacationRequestDto.IsVacation;
             vacation.IsRecurring = updateVacationRequestDto.IsRecurring;
-            await _unitOfWork.Repository.UpdateAsync(vacation, cancellationToken);
+
             await _unitOfWork.Repository.CompleteAsync();
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.VacationUpdated, Messages.VacationUpdated);
+
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.VacationUpdated, Messages.VacationUpdated);
 
         }
-        public async Task<ApiResponse<string>> DeleteAsync(long id, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> DeleteAsync(long id, CancellationToken cancellationToken = default)
         {
             var vacation = await _unitOfWork.Repository.GetByIdAsync<Vacation>(false, id, cancellationToken);
 
             if (vacation == null)
-                return ApiResponse<string>.ReturnFailureResponse(Messages.NoVacation, HttpStatusCode.NotFound);
-            await _unitOfWork.Repository.SoftDeleteAsync<Vacation,long>(vacation, cancellationToken);
+            {
+                return ApiResponse<object>.ReturnFailureResponse(Messages.NoVacation, HttpStatusCode.NotFound);
+            }
+            vacation.SetIsDeletedToTrue();
+            vacation.ToggleIsActive();
+
             await _unitOfWork.Repository.CompleteAsync();
-            return ApiResponse<string>.ReturnSuccessResponse(Messages.VacationDeleted, Messages.VacationDeleted);
+
+            return ApiResponse<object>.ReturnSuccessResponse(Messages.VacationDeleted, Messages.VacationDeleted);
 
         }
     }
-    public sealed record VacationValidation
-    {
-        public long? VacationId { get; set; }
-        public string? DayName { get; set; }
-        public DateOnly? DayDate { get; set; }
-        public bool IsRecurring { get; set; }
-    }
+    
 
 }

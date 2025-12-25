@@ -22,6 +22,29 @@ namespace NetBlaze.Infrastructure.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("NetBlaze.Domain.Entities.AttendanceDailyReport", b =>
+                {
+                    b.Property<DateOnly>("AttendDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("CheckIn")
+                        .HasColumnType("time(6)");
+
+                    b.Property<TimeOnly?>("CheckOut")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("vw_attendancedailyreport", (string)null);
+                });
+
             modelBuilder.Entity("NetBlaze.Domain.Entities.AttendencePolicyAction", b =>
                 {
                     b.Property<long>("Id")
@@ -79,7 +102,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasIndex("PolicyId");
 
-                    b.ToTable("AttendencePolicyActions");
+                    b.ToTable("AttendencePolicyActions", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Department", b =>
@@ -123,7 +146,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.EmployeeAttendence", b =>
@@ -174,7 +197,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("EmployeeAttendences");
+                    b.ToTable("EmployeeAttendences", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Identity.Role", b =>
@@ -401,6 +424,65 @@ namespace NetBlaze.Infrastructure.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("NetBlaze.Domain.Entities.Permission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("HttpMethod")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions", (string)null);
+                });
+
             modelBuilder.Entity("NetBlaze.Domain.Entities.Policy", b =>
                 {
                     b.Property<long>("Id")
@@ -409,7 +491,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<double>("ActionValue")
+                    b.Property<double?>("ActionValue")
                         .HasColumnType("double");
 
                     b.Property<DateTimeOffset>("CreatedAt")
@@ -441,7 +523,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.Property<string>("PolicyCode")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("PolicyName")
                         .IsRequired()
@@ -450,15 +532,21 @@ namespace NetBlaze.Infrastructure.Migrations
                     b.Property<int>("PolicyType")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("WorkEndTime")
-                        .HasColumnType("datetime(6)");
+                    b.Property<int?>("RequiredHours")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("WorkStartTime")
-                        .HasColumnType("datetime(6)");
+                    b.Property<TimeOnly?>("WorkEndTime")
+                        .HasColumnType("time(6)");
+
+                    b.Property<TimeOnly?>("WorkStartTime")
+                        .HasColumnType("time(6)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Policies");
+                    b.HasIndex("PolicyCode")
+                        .IsUnique();
+
+                    b.ToTable("Policies", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.RandomChecks", b =>
@@ -479,7 +567,7 @@ namespace NetBlaze.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<DateTime>("CreationTIme")
+                    b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
@@ -519,7 +607,52 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RandomChecks");
+                    b.ToTable("RandomChecks", (string)null);
+                });
+
+            modelBuilder.Entity("NetBlaze.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PermissionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.SampleEntity", b =>
@@ -584,7 +717,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SampleEntity");
+                    b.ToTable("SampleEntity", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.UserDetail", b =>
@@ -638,7 +771,7 @@ namespace NetBlaze.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserDetails");
+                    b.ToTable("UserDetails", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Vacation", b =>
@@ -656,12 +789,11 @@ namespace NetBlaze.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<DateOnly>("DayDate")
+                    b.Property<DateOnly?>("DayDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("DayName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int?>("DayName")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetime(6)");
@@ -691,7 +823,7 @@ namespace NetBlaze.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vacations");
+                    b.ToTable("Vacations", (string)null);
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.AttendencePolicyAction", b =>
@@ -771,6 +903,25 @@ namespace NetBlaze.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("NetBlaze.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("NetBlaze.Domain.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NetBlaze.Domain.Entities.Identity.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("NetBlaze.Domain.Entities.UserDetail", b =>
                 {
                     b.HasOne("NetBlaze.Domain.Entities.Identity.User", "User")
@@ -794,6 +945,8 @@ namespace NetBlaze.Infrastructure.Migrations
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Identity.Role", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("UserRoles");
                 });
 
@@ -809,6 +962,11 @@ namespace NetBlaze.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("NetBlaze.Domain.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("NetBlaze.Domain.Entities.Policy", b =>

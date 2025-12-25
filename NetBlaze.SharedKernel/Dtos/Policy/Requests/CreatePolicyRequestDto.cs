@@ -1,6 +1,4 @@
-﻿
-
-using NetBlaze.SharedKernel.Enums;
+﻿using NetBlaze.SharedKernel.Enums;
 using NetBlaze.SharedKernel.SharedResources;
 using System.ComponentModel.DataAnnotations;
 

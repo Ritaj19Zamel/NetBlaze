@@ -25,13 +25,13 @@ namespace NetBlaze.Api.Controllers
             return await _authService.LoginAsync(loginRequestDto, cancellationToken);
         }
         [HttpPost("forgetpassword")]
-        public async Task<ApiResponse<string>> ForgetPasswordAsync(ForgetPasswordRequestDto forgetPasswordRequestDto)
+        public async Task<ApiResponse<object>> ForgetPasswordAsync(ForgetPasswordRequestDto forgetPasswordRequestDto)
         {
             return await _authService.ForgetPasswordAsync(forgetPasswordRequestDto);
         }
         [HttpPost("resetpassword")]
 
-        public async Task<ApiResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto)
+        public async Task<ApiResponse<object>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto)
         {
             return await _authService.ResetPasswordAsync(resetPasswordRequestDto);
         }

@@ -68,6 +68,17 @@
         public static string WeeklyVacationExists => ResourceManager.GetString(nameof(WeeklyVacationExists), resourceCulture)!;
         public static string YearlyVacationExists => ResourceManager.GetString(nameof(YearlyVacationExists), resourceCulture)!;
         public static string OneTimeVacationExists => ResourceManager.GetString(nameof(OneTimeVacationExists), resourceCulture)!;
+        public static string Checked => ResourceManager.GetString(nameof(Checked), resourceCulture)!;
+        public static string InvalidOTP => ResourceManager.GetString(nameof(InvalidOTP), resourceCulture)!;
+        public static string ExpiryOTP => ResourceManager.GetString(nameof(ExpiryOTP), resourceCulture)!;
+
+        public static string NoUsersProvided => ResourceManager.GetString(nameof(NoUsersProvided), resourceCulture)!;
+        public static string NoChecksFound => ResourceManager.GetString(nameof(NoChecksFound), resourceCulture)!;
+        public static string NoAttendanceRecordsNotFound => ResourceManager.GetString(nameof(NoAttendanceRecordsNotFound), resourceCulture)!;
+        public static string ViolationRecordsNotFound => ResourceManager.GetString(nameof(ViolationRecordsNotFound), resourceCulture)!;
+        public static string PolicyAlreadyReviewed => ResourceManager.GetString(nameof(PolicyAlreadyReviewed), resourceCulture)!;
+        public static string PolicyReviewRecorded => ResourceManager.GetString(nameof(PolicyReviewRecorded), resourceCulture)!;
+
 
     }
 }

@@ -8,8 +8,8 @@ namespace NetBlaze.Application.Interfaces.ServicesInterfaces
     {
         Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto registerRequestDto, CancellationToken cancellationToken = default);
         Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto loginRequestDto, CancellationToken cancellationToken = default);
-        Task<ApiResponse<string>> ForgetPasswordAsync(ForgetPasswordRequestDto forgetPasswordRequestDto);
-        Task<ApiResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto);
+        Task<ApiResponse<object>> ForgetPasswordAsync(ForgetPasswordRequestDto forgetPasswordRequestDto);
+        Task<ApiResponse<object>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto);
 
     }
 }
