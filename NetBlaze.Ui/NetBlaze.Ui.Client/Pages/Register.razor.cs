@@ -33,21 +33,21 @@ namespace NetBlaze.Ui.Client.Pages
             var rolesResponse = await RoleService.GetAllAsync();
 
             if (rolesResponse.Success) {
-                _roles = rolesResponse.Data;
+                _roles = rolesResponse.Data ?? new List <GetRoleResponseDto>();
             }
 
             var mangersResponse = await UserService.GetManagersAsync();
 
             if (mangersResponse.Success)
             {
-                _mangers = mangersResponse.Data;
+                _mangers = mangersResponse.Data  ??  new List<GetManagerResponseDto>();
             }
 
             var departmentResponse = await DepartmentService.GetAllAsync();
 
             if (departmentResponse.Success)
             {
-                _departments = departmentResponse.Data;
+                _departments = departmentResponse.Data ?? new List<GetDepartmentResponseDto>();
             }
 
     }
