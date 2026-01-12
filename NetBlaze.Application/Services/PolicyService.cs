@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NetBlaze.Application.Interfaces.General;
+﻿using NetBlaze.Application.Interfaces.General;
 using NetBlaze.Application.Interfaces.ServicesInterfaces;
 using NetBlaze.Application.Mappings;
 using NetBlaze.Domain.Entities;
@@ -66,7 +65,7 @@ namespace NetBlaze.Application.Services
         }
         #endregion
 
-        public async Task<ApiResponse<object>> CreateAsync(CreatePolicyRequestDto createPolicyRequestDto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> CreatePolicyAsync(CreatePolicyRequestDto createPolicyRequestDto, CancellationToken cancellationToken = default)
         {
             var validation = await ValidatePolicyAsync(new PolicyValidationDto
             {
@@ -99,13 +98,14 @@ namespace NetBlaze.Application.Services
 
             return ApiResponse<object>.ReturnSuccessResponse(Messages.PolicyCreated, Messages.PolicyCreated);
         }
-        public async Task<ApiResponse<PaginatedList<GetPolicyResponseDto>>> GetAllAsync(int pageNumber, int pageSize,
+        public async Task<ApiResponse<PaginatedList<GetPolicyResponseDto>>> GetAllPoliciesAsync(int pageNumber, int pageSize,
             CancellationToken cancellationToken = default)
         {
             var policies =  _unitOfWork.Repository.GetQueryable<Policy>()
                 .OrderBy(p => p.Id)
                 .Select(p => new GetPolicyResponseDto()
                 {
+                    Id = p.Id,
                     PolicyName = p.PolicyName,
                     PolicyCode = p.PolicyCode,
                     PolicyType = p.PolicyType,
@@ -125,11 +125,12 @@ namespace NetBlaze.Application.Services
 
             return ApiResponse<PaginatedList<GetPolicyResponseDto>>.ReturnSuccessResponse(result);
         }
-        public async Task<ApiResponse<GetPolicyResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<GetPolicyResponseDto>> GetPolicyByIdAsync(long id, CancellationToken cancellationToken = default)
         {
             var policy = await _unitOfWork.Repository.GetByIdAsync<Policy, GetPolicyResponseDto>(true,id,
                 p => new GetPolicyResponseDto()
                 {
+                    Id = p.Id,
                     PolicyName = p.PolicyName,
                     PolicyCode = p.PolicyCode,
                     PolicyType = p.PolicyType,
@@ -144,9 +145,9 @@ namespace NetBlaze.Application.Services
 
             return ApiResponse<GetPolicyResponseDto>.ReturnSuccessResponse(policy);
         }
-        public async Task<ApiResponse<object>> UpdateAsync(long id, UpdatePolicyRequestDto updatePolicyRequestDto, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> UpdatePolicyAsync(UpdatePolicyRequestDto updatePolicyRequestDto, CancellationToken cancellationToken = default)
         {
-            var policy = await _unitOfWork.Repository.GetByIdAsync<Policy>(false, id, cancellationToken);
+            var policy = await _unitOfWork.Repository.GetByIdAsync<Policy>(false, updatePolicyRequestDto.Id, cancellationToken);
 
             if (policy == null)
             {
@@ -155,8 +156,8 @@ namespace NetBlaze.Application.Services
                 
             var validation = await ValidatePolicyAsync(new PolicyValidationDto
             {
-                PolicyId = id,
-                IgnoreId = id,
+                PolicyId = updatePolicyRequestDto.Id,
+                IgnoreId = updatePolicyRequestDto.Id,
                 PolicyCode = updatePolicyRequestDto.PolicyCode,
                 PolicyType = updatePolicyRequestDto.PolicyType,
                 WorkStartTime = updatePolicyRequestDto.WorkStartTime,
@@ -184,7 +185,7 @@ namespace NetBlaze.Application.Services
 
             return ApiResponse<object>.ReturnSuccessResponse(Messages.PolicyUpdated, Messages.PolicyUpdated);
         }
-        public async Task<ApiResponse<object>> DeleteAsync(long id, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<object>> DeletePolicyAsync(long id, CancellationToken cancellationToken = default)
         {
             var policy = await _unitOfWork.Repository.GetByIdAsync<Policy>(false, id, cancellationToken);
 

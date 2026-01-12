@@ -1,0 +1,71 @@
+﻿@using NetBlaze.SharedKernel.SharedResources
+
+<EditForm Model="_updateVacationRequestDto" OnValidSubmit="SubmitAsync">
+    <DataAnnotationsValidator />
+
+    <MudDialog>
+        <DialogContent>
+            <MudGrid>
+
+                <!-- Day Name -->
+                <MudItem xs="12" md="6">
+                    <MudSelect T="DayOfWeek ?"
+                               @bind-Value="_updateVacationRequestDto.DayName"
+                               Label="@Messages.DayName"
+                               Variant="Variant.Outlined"
+                               Class="mb-3">
+
+                        @foreach (var day in Enum.GetValues<DayOfWeek>())
+                        {
+                            <MudSelectItem T="DayOfWeek ?" Value="@((DayOfWeek?)day)">
+                                @day
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+
+                </MudItem>
+
+                <!-- Day Date -->
+                <MudItem xs="12" md="6">
+                    <MudDatePicker @bind-Date="_dayDateProxy"
+                                   Label="@Messages.DayDate"
+                                   DateFormat="yyyy-MM-dd"
+                                   Variant="Variant.Outlined"
+                                   Class="mb-3"
+                                   Clearable />
+                </MudItem>
+
+                <!-- Is Vacation -->
+                <MudItem xs="12" md="6">
+                    <MudSwitch T="bool"
+                               @bind-Checked="_updateVacationRequestDto.IsVacation"
+                               Color="Color.Primary"
+                               Label="@Messages.IsVacation"
+                               Class="mb-3" />
+                </MudItem>
+
+                <!-- Is Recurring -->
+                <MudItem xs="12" md="6">
+                    <MudSwitch T="bool"
+                               @bind-Checked="_updateVacationRequestDto.IsRecurring"
+                               Color="Color.Primary"
+                               Label="@Messages.IsRecurring"
+                               Class="mb-3" />
+                </MudItem>
+
+            </MudGrid>
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton OnClick="Cancel">
+                @Messages.Cancel
+            </MudButton>
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Color="Color.Primary"
+                       Variant="Variant.Filled">
+                @Messages.UpdateVacation
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

@@ -22,7 +22,7 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
 
 
         public DbSet<Department> Departments => Set<Department>();
-        public DbSet<UserDetail> UserDetails => Set<UserDetail>();
+        public DbSet<UserDevice> userDevices => Set<UserDevice>();
         public DbSet<EmployeeAttendence> EmployeeAttendences => Set<EmployeeAttendence>();
         public DbSet<RandomChecks> RandomChecks => Set<RandomChecks>();
         public DbSet<Vacation> Vacations => Set<Vacation>();
@@ -30,8 +30,10 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
         public DbSet<AttendanceView> AttendanceDailyReports { get; set; }
 
         public DbSet<AttendencePolicyAction> AttendencePolicyActions => Set<AttendencePolicyAction>();
-        public DbSet<Permission> Permissions => Set<Permission>();
-        public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+
+        public DbSet<RandomCheckAutoConfig> RandomCheckAutoConfigs => Set<RandomCheckAutoConfig>();
+        public DbSet<RandomCheckSchedule> RandomCheckSchedules => Set<RandomCheckSchedule>();
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)

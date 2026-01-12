@@ -1,0 +1,103 @@
+﻿@using NetBlaze.SharedKernel.Enums
+@using NetBlaze.SharedKernel.SharedResources
+
+<EditForm Model="_createPolicyRequestDto" OnValidSubmit="SubmitAsync">
+    <DataAnnotationsValidator />
+
+    <MudDialog>
+        <DialogContent>
+            <MudGrid>
+
+                <!-- Policy Name -->
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_createPolicyRequestDto.PolicyName"
+                                  Label="@Messages.PolicyName"
+                                  Variant="Variant.Outlined"
+                                  Class="mb-3" />
+                </MudItem>
+
+                <!-- Policy Code -->
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="_createPolicyRequestDto.PolicyCode"
+                                  Label="@Messages.PolicyCode"
+                                  Variant="Variant.Outlined"
+                                  Class="mb-3" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudSelect T="PolicyType"
+                               @bind-Value="_createPolicyRequestDto.PolicyType"
+                               Label="@Messages.PolicyType"
+                               Variant="Variant.Outlined"
+                               Required
+                               Class="mb-3">
+                        @foreach (var type in Enum.GetValues<PolicyType>())
+                        {
+                            <MudSelectItem T="PolicyType" Value="@type">
+                                @type.ToString()
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField T="double"
+                                     @bind-Value="_createPolicyRequestDto.ActionValue"
+                                     Label="@Messages.ActionValue"
+                                     Variant="Variant.Outlined"
+                                     Required
+                                     Class="mb-3" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField T="int"
+                                     @bind-Value="_createPolicyRequestDto.RequiredHours"
+                                     Label="@Messages.RequiredHours"
+                                     Variant="Variant.Outlined"
+                                     Required
+                                     Class="mb-3" />
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTimePicker @bind-Time="_workStartTimeProxy"
+                                   Label="@Messages.WorkStartTime"
+                                   Variant="Variant.Outlined"
+                                   Format="HH:mm"
+                                   PickerVariant="PickerVariant.Inline"
+                                   Clearable
+                                   AmPm="true"
+                                   Required="true"
+                                   AdornmentIcon="@Icons.Material.Filled.Schedule"
+                                   Class="mb-3" />
+
+ 
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTimePicker @bind-Time="_workEndTimeProxy"
+                                   Label="@Messages.WorkEndTime"
+                                   Variant="Variant.Outlined"
+                                   Format="HH:mm"
+                                   PickerVariant="PickerVariant.Inline"
+                                   Clearable
+                                   AmPm="true"
+                                   Required="true"
+                                   AdornmentIcon="@Icons.Material.Filled.Schedule"
+                                   Class="mb-3" />
+                </MudItem>
+
+
+
+            </MudGrid>
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton OnClick="Cancel">
+                @Messages.Cancel
+            </MudButton>
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Color="Color.Primary"
+                       Variant="Variant.Filled">
+                @Messages.AddPolicy
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

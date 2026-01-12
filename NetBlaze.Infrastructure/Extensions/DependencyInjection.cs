@@ -13,7 +13,9 @@ using NetBlaze.Infrastructure.Data.ParallelService;
 using NetBlaze.Infrastructure.Data.UnitOfWork;
 using NetBlaze.Infrastructure.GenericMemoryCacheRepository;
 using NetBlaze.Infrastructure.InfraServices;
+using NetBlaze.SharedKernel.Enums;
 using NetBlaze.SharedKernel.HelperUtilities.Constants;
+using NetBlaze.SharedKernel.HelperUtilities.General;
 
 namespace NetBlaze.Infrastructure.Extensions
 {
@@ -25,12 +27,7 @@ namespace NetBlaze.Infrastructure.Extensions
 
             builder.Services.AddScoped<ISaveChangesInterceptor, BeforeSaveChangesInterceptor>();
 
-            builder.Services.AddDbContext<ApplicationDbContext>((sp, opt) =>
-            {
-                opt.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-                opt.EnableThreadSafetyChecks(true);
-            });
+          
 
             builder.Services.AddDbContextFactory<ApplicationDbContext>((sp, opt) =>
             {
@@ -73,7 +70,22 @@ namespace NetBlaze.Infrastructure.Extensions
 
             builder.AddBearerAuthenticationService();
 
-            builder.Services.AddAuthorization();
+             builder.Services.AddAuthorization(options =>
+            {
+                // Set fallback policy to prevent challenge errors
+                options.FallbackPolicy = null;
+                
+                options.AddPolicy(AuthorizationPolicies.SuperAdmin, policy =>
+                    policy.RequireRole(AppRoles.SuperAdmin.ToString()));
+                options.AddPolicy(AuthorizationPolicies.HRAndManager, policy =>
+                    policy.RequireRole(
+                        AppRoles.HR.ToString(),
+                        AppRoles.Manager.ToString()));
+                options.AddPolicy(AuthorizationPolicies.Employee, policy =>
+                    policy.RequireRole(AppRoles.Employee.ToString()));
+                options.AddPolicy(AuthorizationPolicies.AnyAuthenticated, policy =>
+                    policy.RequireAuthenticatedUser());
+            });
         }
     }
 }

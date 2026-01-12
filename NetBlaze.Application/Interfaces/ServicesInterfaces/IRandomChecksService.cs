@@ -12,6 +12,7 @@ namespace NetBlaze.Application.Interfaces.ServicesInterfaces
 
         Task<ApiResponse<PaginatedList<GetUserRandomChecksResponseDto>>> GetUserChecksAsync(GetUserRandomChecksRequestDto getUserRandomChecksRequestDto,
             CancellationToken cancellationToken = default);
+        Task<ApiResponse<object>> SaveAutoRandomCheckConfig(AutoRandomCheckRequestDto dto, CancellationToken cancellationToken);
 
     }
 }

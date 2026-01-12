@@ -25,9 +25,5 @@ namespace NetBlaze.SharedKernel.Dtos.Auth.Requests
         [Required(ErrorMessageResourceType = typeof(Messages), ErrorMessageResourceName = nameof(Messages.FieldRequired))]
 
         public long RoleId { get; set; }
-        [Required(ErrorMessageResourceType = typeof(Messages), ErrorMessageResourceName = nameof(Messages.FieldRequired))]
-        public string DeviceName { get; set; }
-        [Required(ErrorMessageResourceType = typeof(Messages), ErrorMessageResourceName = nameof(Messages.FieldRequired))]
-        public string CertificatePassword { get; set; }
     }
 }

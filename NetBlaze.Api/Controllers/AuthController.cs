@@ -15,12 +15,12 @@ namespace NetBlaze.Api.Controllers
             _authService = authService;
         }
         [HttpPost("register")]
-        public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto registerRequestDto, CancellationToken cancellationToken)
+        public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto registerRequestDto, CancellationToken cancellationToken = default)
         {
             return await _authService.RegisterAsync(registerRequestDto, cancellationToken);
         }
         [HttpPost("login")]
-        public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto loginRequestDto, CancellationToken cancellationToken)
+        public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto loginRequestDto, CancellationToken cancellationToken = default)
         {
             return await _authService.LoginAsync(loginRequestDto, cancellationToken);
         }
@@ -29,11 +29,13 @@ namespace NetBlaze.Api.Controllers
         {
             return await _authService.ForgetPasswordAsync(forgetPasswordRequestDto);
         }
-        [HttpPost("resetpassword")]
 
+        [HttpPost("resetpassword")]
         public async Task<ApiResponse<object>> ResetPasswordAsync(ResetPasswordRequestDto resetPasswordRequestDto)
         {
             return await _authService.ResetPasswordAsync(resetPasswordRequestDto);
         }
+
+
     }
 }

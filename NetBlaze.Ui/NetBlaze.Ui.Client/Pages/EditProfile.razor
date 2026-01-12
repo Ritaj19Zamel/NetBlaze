@@ -1,0 +1,121 @@
+﻿@page "/profile/edit"
+@using NetBlaze.SharedKernel.SharedResources
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-6">
+
+    <MudText Typo="Typo.h4" Class="mb-4">
+        @Messages.EditProfile
+    </MudText>
+
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-center align-center" style="min-height: 300px;">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else
+    {
+        <MudPaper Class="pa-4">
+            <EditForm Model="_model" OnValidSubmit="SubmitAsync">
+                <MudGrid>
+
+                    <MudItem xs="12" Class="d-flex justify-center mb-4">
+                        <MudAvatar Color="Color.Secondary" Size="Size.Large" Style="width: 120px; height: 120px;">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Large" Style="font-size: 4rem;" />
+                        </MudAvatar>
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.DisplayName"
+                                      Label="@Messages.FullName"
+                                      Variant="Variant.Outlined"
+                                      Required="true" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.Email"
+                                      Label="@Messages.Email"
+                                      Variant="Variant.Outlined"
+                                      InputType="InputType.Email"
+                                      Required="true" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.PhoneNumber"
+                                      Label="@Messages.PhoneNumber"
+                                      Variant="Variant.Outlined"
+                                      InputType="InputType.Telephone" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudDivider Class="my-4" />
+                        <MudText Typo="Typo.h6" Class="mb-2">
+                            @Messages.ChangePassword
+                        </MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                            @Messages.ChangePasswordHint
+                        </MudText>
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.CurrentPassword"
+                                      Label="@Messages.CurrentPassword"
+                                      Variant="Variant.Outlined"
+                                      InputType="@(_showCurrentPassword? InputType.Text: InputType.Password)"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@(_showCurrentPassword? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                      OnAdornmentClick="ToggleCurrentPassword" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.NewPassword"
+                                      Label="@Messages.NewPassword"
+                                      Variant="Variant.Outlined"
+                                      InputType="@(_showNewPassword? InputType.Text: InputType.Password)"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@(_showNewPassword? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                      OnAdornmentClick="ToggleNewPassword" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.ConfirmNewPassword"
+                                      Label="@Messages.ConfirmPassword"
+                                      Variant="Variant.Outlined"
+                                      InputType="@(_showConfirmPassword? InputType.Text: InputType.Password)"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@(_showConfirmPassword? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                      OnAdornmentClick="ToggleConfirmPassword" />
+                    </MudItem>
+
+                    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                    {
+                        <MudItem xs="12">
+                            <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+                        </MudItem>
+                    }
+
+                    <MudItem xs="12" Class="d-flex justify-end gap-3 mt-4">
+                        <MudButton Variant="Variant.Text"
+                                   OnClick="Cancel"
+                                   Disabled="@_isSubmitting">
+                            @Messages.Cancel
+                        </MudButton>
+
+                        <MudButton Color="Color.Primary"
+                                   Variant="Variant.Filled"
+                                   OnClick="SubmitAsync"
+                                   Disabled="@(_isSubmitting || _isLoading || !IsFormValid())">
+                            @if (_isSubmitting)
+                            {
+                                <MudProgressCircular Class="mr-2" Size="Size.Small" Indeterminate="true" />
+                            }
+                            @Messages.Submit
+                        </MudButton>
+                    </MudItem>
+
+                </MudGrid>
+            </EditForm>
+        </MudPaper>
+    }
+
+</MudContainer>

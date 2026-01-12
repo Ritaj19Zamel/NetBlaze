@@ -12,13 +12,16 @@ namespace NetBlaze.Infrastructure.Data.Configurations.EntitiesConfigurations.Ide
         {
             // Properties Configurations
             builder
-                  .HasOne(u => u.UserDetail)
-                  .WithOne(d => d.User)
-                  .HasForeignKey<UserDetail>(d => d.UserId);
+                .HasMany(u => u.UserDevices)
+                .WithOne(d => d.User)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder
                   .HasOne(u => u.Manager)
                   .WithMany(u => u.SubUsers)
                   .HasForeignKey(u => u.ManagerId);
+
             builder
                 .HasIndex(u => u.PhoneNumber)
                 .IsUnique();

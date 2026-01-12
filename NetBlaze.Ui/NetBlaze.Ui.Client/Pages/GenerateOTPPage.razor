@@ -1,0 +1,53 @@
+﻿@page "/random-checks/generate"
+@using Microsoft.AspNetCore.Authorization
+@using NetBlaze.SharedKernel.Dtos.RandomCheck.Requests
+@using NetBlaze.SharedKernel.Dtos.User.Responses
+@using NetBlaze.SharedKernel.HelperUtilities.General
+@using NetBlaze.Ui.Client.Services
+
+<MudPaper Class="pa-4">
+
+    <MudText Typo="Typo.h5" Class="mb-4">
+        @Messages.RandomChecks
+    </MudText>
+
+    <MudSwitch T="bool"
+               @bind-Value="_SendToAllEmployees"
+               Color="Color.Primary"
+               Label="@Messages.SendToAllEmployees"
+               Class="mb-3" />
+
+    @if (!_SendToAllEmployees)
+    {
+        <MudText Typo="Typo.subtitle2" Class="mb-2">
+            @Messages.SelectEmployees
+        </MudText>
+
+        <MudSelect T="long"
+                   MultiSelection="true"
+                   SelectedValues="SelectedUsers"
+                   SelectedValuesChanged="OnSelectedUsersChanged"
+                   ToStringFunc="@GetEmployeeName"
+                   Dense="true"
+                   Variant="Variant.Outlined">
+            @foreach (var emp in _employees)
+            {
+                <MudSelectItem Value="@emp.Id">
+                    @emp.DisplayName
+                </MudSelectItem>
+            }
+        </MudSelect>
+    }
+
+    <MudDivider Class="my-4" />
+
+    <MudButton Color="Color.Primary"
+               Variant="Variant.Filled"
+               OnClick="SendOtpAsync"
+               Disabled="_isLoading">
+        @Messages.SendNow
+    </MudButton>
+
+</MudPaper>
+
+

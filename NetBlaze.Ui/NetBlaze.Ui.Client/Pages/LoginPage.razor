@@ -1,0 +1,68 @@
+﻿@page "/"
+@using NetBlaze.Ui.Client.SharedRazor.Layouts
+@layout AuthLayout
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="min-height: 100vh;">
+    <MudPaper Elevation="3" Class="pa-8 ma-4" Style="border-radius: 16px; width: 100%; max-width: 480px;">
+
+        <div class="d-flex justify-space-between align-center mb-2">
+            <div>
+                <MudText Typo="Typo.h4" Class="font-weight-bold mb-2">@Messages.Login</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@Messages.SignInToYourAccount</MudText>
+            </div>
+        </div>
+
+        <MudForm @ref="_form" Model="_loginRequestDto" Class="mt-6">
+            <MudTextField @bind-Value="_loginRequestDto.Email"
+                          Immediate="true"
+                          Label="@Messages.Email"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          FullWidth="true"
+                          Class="mb-4" />
+
+            <MudTextField @bind-Value="_loginRequestDto.Password"
+                          Immediate="true"
+                          Label="@Messages.Password"
+                          Variant="Variant.Outlined"
+                          InputType="@(_showPassword? InputType.Text: InputType.Password)"
+                          Required="true"
+                          FullWidth="true"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@(_showPassword? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                          AdornmentAriaLabel="Toggle password visibility"
+                          OnAdornmentClick="TogglePassword"
+                          Class="mb-4" />
+
+
+            <div class="d-flex justify-space-between align-center mb-6">
+                <MudLink Color="Color.Primary"
+                         Typo="Typo.body2"
+                         OnClick="@(() => Nav.NavigateTo("/forget-password"))">
+                    @Messages.ForgotPassword
+                </MudLink>
+            </div>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large"
+                       OnClick="OnLoginAsync"
+                       Disabled="@(!IsFormValid() || _isProcessing)"
+                       Class="mb-4">
+                @if (_isProcessing)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    <span>@Messages.Processing</span>
+                }
+                else
+                {
+                    <span>@Messages.Login</span>
+                }
+            </MudButton>
+
+
+        </MudForm>
+
+    </MudPaper>
+</MudContainer>

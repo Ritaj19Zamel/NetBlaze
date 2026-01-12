@@ -14,5 +14,7 @@ namespace NetBlaze.Domain.Entities.Views
         public string PolicyCode { get; set; }
         public string Clarification { get; set; }
         public double ViolationValue { get; set; }
+        public bool? IsApplied { get; set; }
+        public ViolationStatus  ViolationStatus { get; set; }
     }
 }

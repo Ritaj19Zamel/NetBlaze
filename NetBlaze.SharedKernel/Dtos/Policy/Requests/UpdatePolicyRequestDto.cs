@@ -1,4 +1,5 @@
 ﻿using NetBlaze.SharedKernel.Enums;
+using NetBlaze.SharedKernel.HelperUtilities.General;
 using NetBlaze.SharedKernel.SharedResources;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,6 +7,8 @@ namespace NetBlaze.SharedKernel.Dtos.Policy.Requests
 {
     public sealed record UpdatePolicyRequestDto
     {
+        [IgnoreReflectionMapping]
+        public long Id { get; set; }
         [Required(ErrorMessageResourceType = typeof(Messages), ErrorMessageResourceName = nameof(Messages.FieldRequired))]
         public string PolicyName { get; set; }
         [Required(ErrorMessageResourceType = typeof(Messages), ErrorMessageResourceName = nameof(Messages.FieldRequired))]

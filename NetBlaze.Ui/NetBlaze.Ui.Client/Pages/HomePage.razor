@@ -1,9 +1,59 @@
-﻿@page "/"
+﻿@page "/home"
+@using NetBlaze.SharedKernel.HelperUtilities.General
+@using NetBlaze.Ui.Client.Components.Generic
 
-<PageTitle>@StaticLocalization.Home</PageTitle>
+<PageTitle>@Messages.AttendanceSystem</PageTitle>
 
-<h1 class="ms-5">@StaticLocalization.NetBlazeSolutionTemplate</h1>
+<MudText Typo="Typo.h4" Class="mb-6 text-center">
+    @Messages.AttendanceSystem
+</MudText>
 
-<p class="ms-5">
-    For a quick trip, see <a href="/sample">Sample Management</a>.
-</p>
+<MudGrid Spacing="4">
+
+    <MudItem xs="12" sm="6" md="4">
+        <DashboardCard Title="@Messages.TodayAttendance"
+                       Description="@Messages.TodayAttendanceDesc"
+                       Icon="@Icons.Material.Filled.Today"
+                       Color="Color.Success"
+                       NavigateTo="/today-attendance"  />
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="4">
+        <DashboardCard Title="@Messages.AttendanceReport"
+                       Description="@Messages.AttendanceReportDesc"
+                       Icon="@Icons.Material.Filled.TableView"
+                       Color="Color.Info"
+                       NavigateTo="/attendencereport" 
+                       Policy="@AuthorizationPolicies.HRAndManager" />
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="4">
+        <DashboardCard Title="@Messages.CheckInViolations"
+                       Description="@Messages.CheckInViolationsDesc"
+                       Icon="@Icons.Material.Filled.ReportProblem"
+                       Color="Color.Error"
+                       NavigateTo="/attendance/checkin-violations"
+                       Policy="@AuthorizationPolicies.HRAndManager" />
+    </MudItem>
+
+    <MudItem xs="12" sm="6" md="4">
+        <DashboardCard Title="@Messages.RandomChecks"
+                       Description="@Messages.RandomChecksDesc"
+                       Icon="@Icons.Material.Filled.Shuffle"
+                       Color="Color.Warning"
+                       NavigateTo="/random-checks"
+                       Policy="@AuthorizationPolicies.HRAndManager" />
+    </MudItem>
+
+
+
+    <MudItem xs="12" sm="6" md="4">
+        <DashboardCard Title="@Messages.Departments"
+                       Description="@Messages.DepartmentsDesc"
+                       Icon="@Icons.Material.Filled.AccountTree"
+                       Color="Color.Secondary"
+                       NavigateTo="/departments"
+                       Policy="@AuthorizationPolicies.HRAndManager" />
+    </MudItem>
+
+</MudGrid>

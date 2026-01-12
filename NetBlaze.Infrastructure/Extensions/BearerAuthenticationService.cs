@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using NetBlaze.SharedKernel.HelperUtilities.General;
+using System.Security.Claims;
 using System.Text;
 
 namespace NetBlaze.Infrastructure.Extensions
@@ -21,7 +22,7 @@ namespace NetBlaze.Infrastructure.Extensions
             {
                 var jwtSettings = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
 
-                var key = Encoding.ASCII.GetBytes(jwtSettings!.Key);
+                var key = Encoding.UTF8.GetBytes(jwtSettings!.Key);
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -30,7 +31,22 @@ namespace NetBlaze.Infrastructure.Extensions
                     ClockSkew = TimeSpan.Zero,
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    RoleClaimType = ClaimTypes.Role, 
+                    NameClaimType = ClaimTypes.NameIdentifier
+                };
+
+                // Configure events to handle authentication failures gracefully
+                options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        // Prevent automatic challenge and return 401 directly
+                        context.HandleResponse();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        return Task.CompletedTask;
+                    }
                 };
             });
         }

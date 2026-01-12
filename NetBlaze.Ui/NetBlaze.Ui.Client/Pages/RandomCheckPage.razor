@@ -1,0 +1,121 @@
+﻿@page "/random-checks"
+@using Microsoft.AspNetCore.Authorization
+@using NetBlaze.SharedKernel.Dtos.RandomCheck.Requests
+@using NetBlaze.SharedKernel.Dtos.RandomCheck.Responses
+@using NetBlaze.SharedKernel.HelperUtilities.General
+
+<PageTitle>@Messages.RandomChecks</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+
+    <MudText Typo="Typo.h5" Class="mb-3">
+        @Messages.RandomChecks
+    </MudText>
+
+    <!-- Filters -->
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudSelect T="long"
+                           Label="@Messages.Employee"
+                           @bind-Value="_request.UserId"
+                           Clearable="true"
+                           ToStringFunc="@GetEmployeeName"
+                           RequiredError=@Messages.FieldRequired
+                            Required>
+                    <MudSelectItem T="long" Value="0" Disabled="true">
+                        @Messages.SelectEmployee
+                    </MudSelectItem>
+                    @foreach (var emp in _employees)
+                    {
+                        <MudSelectItem Value="@emp.Id">
+                            @emp.DisplayName
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" md="3">
+                <MudDatePicker Label="@Messages.FromDate"
+                               DateFormat="yyyy-MM-dd"
+                               @bind-Date="_fromDate" />
+            </MudItem>
+
+            <MudItem xs="12" md="3">
+                <MudDatePicker Label="@Messages.ToDate"
+                               DateFormat="yyyy-MM-dd"
+                               @bind-Date="_toDate" />
+            </MudItem>
+
+            <MudItem xs="12" md="2" Class="d-flex align-end">
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           OnClick="ReloadTable">
+                    @Messages.Search
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Table -->
+    <MudPaper>
+        <MudTable T="GetUserRandomChecksResponseDto"
+                  @ref="_table"
+                  ServerData="LoadChecksAsync"
+                  Hover
+                  Dense
+                  Bordered>
+
+            <HeaderContent>
+                <MudTh>@Messages.Status</MudTh>
+                <MudTh>@Messages.CreatedAt</MudTh>
+                <MudTh>@Messages.ExpireAt</MudTh>
+                <MudTh>@Messages.CheckedAt</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <!-- Status -->
+                <MudTd>
+                    <MudChip T="string"
+                             Color="@(context.IsChecked ? Color.Success : Color.Warning)"
+                             Variant="Variant.Filled"
+                             Size="Size.Small">
+                        @(context.IsChecked
+                                                ? Messages.Checked
+                                                : Messages.Pending)
+                    </MudChip>
+
+                </MudTd>
+
+                <!-- Created -->
+                <MudTd>
+                    @context.CreationTime.ToString("yyyy-MM-dd HH:mm")
+                </MudTd>
+
+                <!-- Expire -->
+                <MudTd>
+                    @context.ExpirationTime.ToString("yyyy-MM-dd HH:mm")
+                </MudTd>
+
+                <!-- Checked At -->
+                <MudTd>
+                    @(context.CheckDateTime.HasValue
+                        ? context.CheckDateTime.Value.ToString("yyyy-MM-dd HH:mm")
+                        : "—")
+                </MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudAlert Severity="Severity.Info">
+                    @Messages.NoRecordsFound
+                </MudAlert>
+            </NoRecordsContent>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+
+        </MudTable>
+    </MudPaper>
+
+</MudContainer>

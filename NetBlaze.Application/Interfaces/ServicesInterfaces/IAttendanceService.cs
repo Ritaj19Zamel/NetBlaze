@@ -14,7 +14,8 @@ namespace NetBlaze.Application.Interfaces.ServicesInterfaces
             CancellationToken cancellationToken = default);
         Task<ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>> GetCheckInViolations(GetCheckInViolationsRequestDto getCheckInViolationsRequestDto
             , CancellationToken cancellationToken = default);
-        Task<object> ApprovePolicyRequestAsync(ApprovePolicyRequestDto approvePolicyRequestDto,
-             CancellationToken cancellationToken);
+        Task<ApiResponse<object>> ApprovePolicyRequestAsync(ApprovePolicyRequestDto approvePolicyRequestDto,
+            CancellationToken cancellationToken = default);
+        Task<ApiResponse<GetTodayAttendanceResponseDto>> GetTodayAttendanceAsync(CancellationToken cancellationToken = default);
     }
 }

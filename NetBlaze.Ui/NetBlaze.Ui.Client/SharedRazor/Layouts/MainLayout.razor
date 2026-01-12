@@ -1,26 +1,176 @@
-﻿@using NetBlaze.Ui.Client.Components.Concrete.CultureSelector
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
+@using NetBlaze.Ui.Client.Components.Concrete.CultureSelector
+@using NetBlaze.SharedKernel.HelperUtilities.General
+@using Microsoft.AspNetCore.Components.Authorization
+
 
 <MudThemeProvider Theme="@NetBlazeTheme" />
 <MudPopoverProvider />
-<MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudRTLProvider RightToLeft="@_rightToLeft">
-    <MudLayout class="MainLayout-container">
-        <MudAppBar Elevation="1">
-            <MudIconButton Icon="@Icons.Material.Filled.Dashboard" Color="Color.Primary" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-            <MudText Typo="Typo.h6" Color="Color.Primary">Central Exam Server</MudText>
-            <div class="flex-grow-1" />
+    <MudDialogProvider />
+
+    <MudLayout>
+
+        <!-- ===== APP BAR ===== -->
+        <MudAppBar Elevation="1" Fixed="true" Class="appbar">
+
+            <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Primary"
+                           Edge="Edge.Start"
+                           OnClick="@ToggleSidebar"
+                           Class="sidebar-toggle" />
+
+            <MudText Typo="Typo.h6" Class="appbar-title">
+                @Messages.AttendanceSystem
+            </MudText>
+
             <MudSpacer />
+
             <CultureSelector />
+
+            <!-- ===== USER PROFILE MENU ===== -->
+            <MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <ActivatorContent>
+                    <MudIconButton Icon="@Icons.Material.Filled.Person" Color="Color.Primary" />
+                </ActivatorContent>
+                <ChildContent>
+                    <MudPaper Class="user-profile-menu" Elevation="0">
+                        <MudStack Spacing="2" AlignItems="AlignItems.Center" Class="pa-4">
+                            <MudAvatar Color="Color.Secondary" Size="Size.Large">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Large" />
+                            </MudAvatar>
+                            <MudText Typo="Typo.h6">@_userName</MudText>
+                            <MudLink Href="@($"mailto:{_userEmail}")" Typo="Typo.body2" Color="Color.Primary">
+                                @_userEmail
+                            </MudLink>
+                        </MudStack>
+                        <MudDivider />
+                        <MudStack Class="pa-2">
+                            <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Variant="Variant.Text"
+                                       FullWidth="true"
+                                       OnClick="OpenEditProfileDialogAsync">
+                                @Messages.EditProfile
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Filled.Logout"
+                                       Color="Color.Success"
+                                       Variant="Variant.Filled"
+                                       FullWidth="true"
+                                       OnClick="OnLogoutAsync">
+                                @Messages.Logout
+                            </MudButton>
+                        </MudStack>
+                    </MudPaper>
+                </ChildContent>
+            </MudMenu>
+
         </MudAppBar>
-        <MudMainContent class="MainLayout-content">
-            <div class="p-0 Body-container">
-                @Body
-            </div>
-            <LayoutFooter />
-			<ErrorBar />
+
+        <!-- ===== SIDEBAR ===== -->
+        <MudDrawer @bind-Open="_sidebarOpen"
+                   Variant="@DrawerVariant.Responsive"
+                   Elevation="2"
+                   ClipMode="@DrawerClipMode.Always"
+                   Class="sidebar">
+
+            <MudNavMenu>
+
+                <!-- ===== DASHBOARD ===== -->
+                <MudNavLink Href="/home" Match="NavLinkMatch.All"
+                            Icon="@Icons.Material.Filled.Dashboard">
+                    @Messages.Home
+                </MudNavLink>
+
+                <!-- ===== ATTENDANCE SECTION ===== -->
+                <MudNavGroup Title="@Messages.Attendance"
+                             Icon="@Icons.Material.Filled.AccessTime"
+                             Expanded="true">
+
+                    <AuthorizeView Policy="@AuthorizationPolicies.Employee">
+                        <MudNavLink Href="/today-attendance"
+                                    Icon="@Icons.Material.Filled.EventAvailable">
+                            @Messages.TodayAttendance
+                        </MudNavLink>
+                    </AuthorizeView>
+
+                    <AuthorizeView Policy="@AuthorizationPolicies.HRAndManager">
+                        <MudNavLink Href="/attendencereport"
+                                    Icon="@Icons.Material.Filled.Assessment">
+                            @Messages.AttendanceReport
+                        </MudNavLink>
+                    </AuthorizeView>
+
+                    <AuthorizeView Policy="@AuthorizationPolicies.HRAndManager">
+                        <MudNavLink Href="/attendance/checkin-violations"
+                                    Icon="@Icons.Material.Filled.ErrorOutline">
+                            @Messages.CheckInViolations
+                        </MudNavLink>
+                    </AuthorizeView>
+
+                </MudNavGroup>
+
+                <!-- ===== RANDOM CHECKS SECTION ===== -->
+                <AuthorizeView Policy="@AuthorizationPolicies.HRAndManager">
+                    <MudNavGroup Title="@Messages.RandomChecks"
+                                 Icon="@Icons.Material.Filled.VerifiedUser">
+
+                        <MudNavLink Href="/random-checks/generate"
+                                    Icon="@Icons.Material.Filled.QrCode2">
+                            @Messages.GenerateOtpCode
+                        </MudNavLink>
+
+                        <MudNavLink Href="/random-checks/auto"
+                                    Icon="@Icons.Material.Filled.AutoAwesome">
+                            @Messages.AutoGenerateOtp
+                        </MudNavLink>
+
+                        <MudNavLink Href="/random-checks"
+                                    Icon="@Icons.Material.Filled.Checklist">
+                            @Messages.ViewRandomChecks
+                        </MudNavLink>
+
+                    </MudNavGroup>
+                </AuthorizeView>
+
+                <!-- ===== MANAGEMENT SECTION ===== -->
+                <AuthorizeView Policy="@AuthorizationPolicies.HRAndManager">
+                    <MudNavGroup Title="@Messages.Management"
+                                 Icon="@Icons.Material.Filled.ManageAccounts">
+
+                        <MudNavLink Href="/departments"
+                                    Icon="@Icons.Material.Filled.CorporateFare">
+                            @Messages.Departments
+                        </MudNavLink>
+
+                        <MudNavLink Href="/users"
+                                    Icon="@Icons.Material.Filled.Group">
+                            @Messages.Users
+                        </MudNavLink>
+
+                        <MudNavLink Href="/vacation"
+                                    Icon="@Icons.Material.Filled.BeachAccess">
+                            @Messages.Vacation
+                        </MudNavLink>
+
+                        <MudNavLink Href="/policy"
+                                    Icon="@Icons.Material.Filled.Gavel">
+                            @Messages.Policies
+                        </MudNavLink>
+
+                    </MudNavGroup>
+                </AuthorizeView>
+
+            </MudNavMenu>
+        </MudDrawer>
+
+        <!-- ===== PAGE CONTENT ===== -->
+        <MudMainContent Class="main-content">
+            @Body
         </MudMainContent>
+
     </MudLayout>
+
 </MudRTLProvider>

@@ -1,0 +1,25 @@
+﻿@using NetBlaze.SharedKernel.SharedResources
+@inherits ViolationDecisionDialogBase
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-2">
+            @_title
+        </MudText>
+
+        <MudTextField Label="@Messages.Clarification"
+                      @bind-Value="_clarification"
+                      Lines="3"
+                      Variant="Variant.Outlined"
+                      Placeholder="@Messages.Clarification" />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Submit">
+            @Messages.Confirm
+        </MudButton>
+        <MudButton Color="Color.Default" OnClick="Cancel">
+            @Messages.Cancel
+        </MudButton>
+    </DialogActions>
+</MudDialog>

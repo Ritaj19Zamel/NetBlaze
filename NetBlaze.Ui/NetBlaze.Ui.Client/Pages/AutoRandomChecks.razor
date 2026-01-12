@@ -1,0 +1,82 @@
+﻿@page "/random-checks/auto"
+@using NetBlaze.SharedKernel.Dtos.RandomCheck.Requests
+@using NetBlaze.SharedKernel.HelperUtilities.General
+@using MudBlazor
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+
+    <MudPaper Class="pa-6">
+
+        <MudText Typo="Typo.h5" Class="mb-4">
+            @Messages.AutoRandomCheck
+        </MudText>
+
+        <MudSwitch T="bool"
+                   @bind-Value="Model.IsEnabled"
+                   Color="Color.Primary"
+                   Label="@Messages.EnableAutoRandomCheck"
+                   Class="mb-4" />
+
+        <MudGrid>
+
+            <MudItem xs="12" md="6">
+                <MudDatePicker @bind-Date="_fromDate"
+                               Label="@Messages.FromDate"
+                               Variant="Variant.Outlined"
+                               Class="mb-3" />
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudDatePicker @bind-Date="_toDate"
+                               Label="@Messages.ToDate"
+                               Variant="Variant.Outlined"
+                               Class="mb-3" />
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudTimePicker @bind-Time="_fromTime"
+                               Label="@Messages.FromTime"
+                               Variant="Variant.Outlined"
+                               Format="HH:mm"
+                               PickerVariant="PickerVariant.Inline"
+                               Clearable
+                               AmPm="true"
+                               Required="true"
+                               AdornmentIcon="@Icons.Material.Filled.Schedule"
+                               Class="mb-3"/>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudTimePicker @bind-Time="_toTime"
+                               Label="@Messages.ToTime"
+                               Variant="Variant.Outlined"
+                               Format="HH:mm"
+                               PickerVariant="PickerVariant.Inline"
+                               Clearable
+                               AmPm="true"
+                               Required="true"
+                               AdornmentIcon="@Icons.Material.Filled.Schedule"
+                               Class="mb-3" />
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudNumericField T="int"
+                                 Label="@Messages.ChecksPerDay"
+                                 @bind-Value="Model.ChecksPerDay"
+                                 Min="1" />
+            </MudItem>
+
+        </MudGrid>
+
+        <MudDivider Class="my-4" />
+
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SaveConfigAsync"
+                   Disabled="_isLoading">
+            @Messages.Save
+        </MudButton>
+
+    </MudPaper>
+
+</MudContainer>

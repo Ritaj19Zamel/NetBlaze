@@ -5,7 +5,7 @@ namespace NetBlaze.Application.Interfaces.ServicesInterfaces
 {
     public interface IRoleService
     {
-        Task<ApiResponse<List<GetRoleResponseDto>>> GetAllAsync(CancellationToken cancellationToken = default);
-        Task<ApiResponse<GetRoleResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+        Task<ApiResponse<List<GetRoleResponseDto>>> GetAllRolesAsync(CancellationToken cancellationToken = default);
+        Task<ApiResponse<GetRoleResponseDto>> GetRolesByIdAsync(long id, CancellationToken cancellationToken = default);
     }
 }

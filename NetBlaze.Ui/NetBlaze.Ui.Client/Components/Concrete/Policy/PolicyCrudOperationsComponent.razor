@@ -1,0 +1,88 @@
+﻿@using NetBlaze.SharedKernel.Dtos.Policy.Responses
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+
+    <MudText Typo="Typo.h4" Class="mb-4">
+        @Messages.Policies
+    </MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenAddDialogAsync">
+                    @Messages.AddPolicy
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" md="6" Class="d-flex justify-end">
+                <MudButton Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           OnClick="@(() => _table?.ReloadServerData())"
+                           Disabled="@_isLoading">
+                    @Messages.Refresh
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudPaper Class="pa-2">
+
+        <MudTable T="GetPolicyResponseDto"
+                  @ref="_table"
+                  ServerData="LoadServerData"
+                  Dense
+                  Hover
+                  Bordered
+                  Striped
+                  Loading="_isLoading">
+
+            <HeaderContent>
+                <MudTh>@Messages.PolicyName</MudTh>
+                <MudTh>@Messages.PolicyCode</MudTh>
+                <MudTh>@Messages.PolicyType</MudTh>
+                <MudTh>@Messages.RequiredHours</MudTh>
+                <MudTh Align="Align.Center">@Messages.Actions</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@context.PolicyName</MudTd>
+                <MudTd>@context.PolicyCode</MudTd>
+
+                <MudTd>
+                    @context.PolicyType.ToString()
+                </MudTd>
+
+                <MudTd>
+                    @(context.RequiredHours?.ToString() ?? "—")
+                </MudTd>
+
+                <MudTd Align="Align.Center">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   OnClick="@(() => OpenUpdateDialogAsync(context.Id))" />
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   OnClick="@(() => DeletePolicyAsync(context.Id))" />
+                </MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudAlert Severity="Severity.Info">
+                    @Messages.NoPoliciesFound
+                </MudAlert>
+            </NoRecordsContent>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+
+        </MudTable>
+
+    </MudPaper>
+</MudContainer>

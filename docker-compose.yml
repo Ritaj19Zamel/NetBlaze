@@ -1,0 +1,21 @@
+﻿version: "3.9"
+
+services:
+  netblaze-api:
+    image: ritajzamel/netblaze-api:latest
+    container_name: netblaze-api
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: "Server=MYSQL_HOST;Port=3306;Database=NetBlazeDb;Uid=root;Pwd=P@$$w0rd;AllowPublicKeyRetrieval=True;"
+
+    ports:
+      - "8080:8080"
+
+    networks:
+      - netblaze-network
+
+networks:
+  netblaze-network:
+    driver: nat

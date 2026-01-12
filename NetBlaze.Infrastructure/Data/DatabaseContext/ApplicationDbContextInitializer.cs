@@ -3,9 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetBlaze.Application.Interfaces.General;
+using NetBlaze.Domain.DatabaseObjects.CommonInterfaces;
 using NetBlaze.Domain.Entities;
 using NetBlaze.Domain.Entities.Identity;
 using NetBlaze.SharedKernel.Enums;
+using System;
+using System.Reflection;
 
 
 namespace NetBlaze.Infrastructure.Data.DatabaseContext
@@ -20,8 +23,43 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
 
             await initializer.InitializeAsync();
 
+            await ApplyMigrationsViewsSPsIfNotAsync(app);
+
             await initializer.SeedAsync();
         }
+        private static async Task ApplyMigrationsViewsSPsIfNotAsync(WebApplication webApplication)
+        {
+            using var scope = webApplication?.Services.CreateScope();
+
+            var dbContext = scope?.ServiceProvider.GetService<ApplicationDbContext>();
+
+            if (dbContext is not null)
+            {
+                // WARNING: Missing with methods order can lead to errors when applying database objects.
+
+                await dbContext.Database.MigrateAsync();
+
+                await ApplyViewsInDatabaseAsync(dbContext);
+
+            }
+        }
+        private static async Task ApplyViewsInDatabaseAsync(ApplicationDbContext dbContext)
+        {
+            var coreAssembly = Assembly.GetAssembly(typeof(IDatabaseView));
+
+            var availableViewsTypes = coreAssembly?
+                .GetTypes()
+                .Where(t => typeof(IDatabaseView).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            foreach (var type in availableViewsTypes ?? [])
+            {
+                if (Activator.CreateInstance(type) is IDatabaseView view)
+                {
+                    await dbContext.Database.ExecuteSqlRawAsync(view.CreateOrReplaceCommand);
+                }
+            }
+        }
+
     }
 
     public class ApplicationDbContextInitializer
@@ -43,7 +81,10 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
         public async Task InitializeAsync()
         {
             await _context.Database.MigrateAsync();
+
         }
+
+        
 
         public async Task SeedAsync()
         {
@@ -54,12 +95,12 @@ namespace NetBlaze.Infrastructure.Data.DatabaseContext
         {
             // WARNING: Missing with methods order can lead to errors when seeding the database for the first time.
 
-            await TrySeedSystemPredefinedRolesAsync();
-            await TrySeedDepartmentsAsync();
-            await TrySeedPoliciesAsync();
-            await TrySeedRootAccountAsync();
-            await TrySeedUserRolesAsync();
-            await TrySeedVacationsAsync();
+            //await TrySeedSystemPredefinedRolesAsync();
+            //await TrySeedDepartmentsAsync();
+            //await TrySeedPoliciesAsync();
+            //await TrySeedRootAccountAsync();
+            //await TrySeedUserRolesAsync();
+            //await TrySeedVacationsAsync();
         }
 
         private async Task TrySeedSystemPredefinedRolesAsync()

@@ -35,8 +35,14 @@ namespace NetBlaze.Domain.Entities.Identity
         public virtual ICollection<RandomChecks> RandomChecks { get; set; } = [];
         public virtual User Manager { get; set; }
         public virtual ICollection<User> SubUsers { get; set; } = [];
-        public virtual UserDetail UserDetail { get; set; }
+        public ICollection<UserDevice> UserDevices { get; set; }
 
+        public void SoftDelete()
+        {
+            IsDeleted = true;
+            IsActive = false;
+            DeletedAt = DateTimeOffset.UtcNow;
+        }
 
     }
 }

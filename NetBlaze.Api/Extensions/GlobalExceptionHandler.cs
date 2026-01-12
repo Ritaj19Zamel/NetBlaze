@@ -57,6 +57,14 @@ namespace NetBlaze.Api.Extensions
 
         private static (HttpStatusCode StatusCode, string? ErrorDetails) MapExceptionToStatusCode(Exception exception, bool isDevelopment)
         {
+            // Handle authentication-related InvalidOperationException as Unauthorized
+            if (exception is InvalidOperationException invalidOpEx && 
+                (invalidOpEx.Message.Contains("authenticationScheme", StringComparison.OrdinalIgnoreCase) ||
+                 invalidOpEx.Message.Contains("DefaultChallengeScheme", StringComparison.OrdinalIgnoreCase)))
+            {
+                return (HttpStatusCode.Unauthorized, isDevelopment ? exception.Message : null);
+            }
+
             return exception switch
             {
                 ArgumentException => (HttpStatusCode.BadRequest, isDevelopment ? exception.StackTrace : null),

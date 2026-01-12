@@ -4,7 +4,7 @@
     {
         public static string Up()
         {
-            return @"CREATE 
+            return @"CREATE OR REPLACE 
                 VIEW `netblazedb`.`vw_attendancedailyreport` AS
                     SELECT 
                         `a`.`UserId` AS `UserId`,

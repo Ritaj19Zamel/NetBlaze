@@ -18,7 +18,7 @@ namespace NetBlaze.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ApiResponse<List<GetRoleResponseDto>>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<List<GetRoleResponseDto>>> GetAllRolesAsync(CancellationToken cancellationToken = default)
         {
             var roles = await _unitOfWork.Repository.GetMultipleAsync<Role, GetRoleResponseDto>(true,
                 e => new GetRoleResponseDto()
@@ -32,7 +32,7 @@ namespace NetBlaze.Application.Services
             return ApiResponse<List<GetRoleResponseDto>>.ReturnSuccessResponse(roles);
         }
 
-        public async Task<ApiResponse<GetRoleResponseDto>> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<GetRoleResponseDto>> GetRolesByIdAsync(long id, CancellationToken cancellationToken = default)
         {
             var role = await _unitOfWork.Repository.GetByIdAsync<Role, GetRoleResponseDto>(true, id,
                 e => new GetRoleResponseDto()

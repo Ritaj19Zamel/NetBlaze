@@ -16,7 +16,7 @@ namespace NetBlaze.Ui.Client.Services
         {
             var response = await _externalHttpClientWrapper.NativeHttpClient.GetAsync(ApiRelativePaths.SAMPLE_LIST, cancellationToken);
 
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
 
             await foreach (var sample in response.Content.ReadFromJsonAsAsyncEnumerable<GetListedSampleResponseDto>(cancellationToken))
             {

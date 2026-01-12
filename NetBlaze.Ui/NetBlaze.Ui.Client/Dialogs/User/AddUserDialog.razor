@@ -1,0 +1,161 @@
+﻿@using NetBlaze.SharedKernel.Dtos.Auth.Requests
+@using NetBlaze.SharedKernel.SharedResources
+
+
+<MudDialog>
+    <DialogContent>
+        @if (_isLoadingData)
+        {
+            <div class="d-flex justify-center align-center" style="min-height: 300px;">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <EditForm Model="_model" OnValidSubmit="SubmitAsync">
+                <DataAnnotationsValidator />
+                <MudGrid>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.DisplayName"
+                                      Label="@Messages.FullName"
+                                      Variant="Variant.Outlined"
+                                      Required="true"
+                                      RequiredError=@Messages.FieldRequired
+                                      For="@(() => _model.DisplayName)" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.Email"
+                                      Label="@Messages.Email"
+                                      Variant="Variant.Outlined"
+                                      Required="true"
+                                      RequiredError=@Messages.FieldRequired
+                                      InputType="InputType.Email"
+                                      For="@(() => _model.Email)" />
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.PhoneNumber"
+                                      Label="@Messages.PhoneNumber"
+                                      Variant="Variant.Outlined"
+                                      Required="true"
+                                      RequiredError=@Messages.FieldRequired
+                                      InputType="InputType.Telephone"
+                                      For="@(() => _model.PhoneNumber)" />
+                    </MudItem>
+
+                    <!-- PASSWORD -->
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.Password"
+                                      Label="@Messages.Password"
+                                      Variant="Variant.Outlined"
+                                      InputType="@(_showPassword? InputType.Text: InputType.Password)"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@(_showPassword? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                      OnAdornmentClick="TogglePassword"
+                                      Required="true"
+                                      RequiredError=@Messages.FieldRequired
+                                      For="@(() => _model.Password)" />
+                    </MudItem>
+
+                    <!-- CONFIRM PASSWORD -->
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_model.ConfirmPassword"
+                                      Label="@Messages.ConfirmPassword"
+                                      Variant="Variant.Outlined"
+                                      InputType="@(_showConfirmPassword? InputType.Text: InputType.Password)"
+                                      Adornment="Adornment.End"
+                                      AdornmentIcon="@(_showConfirmPassword? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                      OnAdornmentClick="ToggleConfirmPassword"
+                                      Required="true"
+                                      RequiredError=@Messages.FieldRequired
+                                      For="@(() => _model.ConfirmPassword)" />
+                    </MudItem>
+
+                    <!-- MANAGER -->
+                    <MudItem xs="12">
+                        <MudSelect T="long?"
+                                   Label="@Messages.Manager"
+                                   @bind-Value="_model.ManagerId"
+                                   ToStringFunc="@GetManagerName"
+                                   Variant="Variant.Outlined">
+
+                            <MudSelectItem T="long?" Value="null">
+                                @Messages.None
+                            </MudSelectItem>
+
+                            @foreach (var mgr in _managers)
+                            {
+                                <MudSelectItem T="long?" Value="@mgr.Id">
+                                    @mgr.Name
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <!-- DEPARTMENT -->
+                    <MudItem xs="12">
+                        <MudSelect T="long"
+                                   Label="@Messages.Department"
+                                   @bind-Value="_model.DepartmentId"
+                                   Variant="Variant.Outlined"
+                                   ToStringFunc="@GetDepartmentName"
+                                   Required="true"
+                                   RequiredError=@Messages.FieldRequired
+                                   For="@(() => _model.DepartmentId)">
+
+                            <MudSelectItem T="long" Value="0" Disabled="true">
+                                @Messages.SelectDepartment
+                            </MudSelectItem>
+
+
+                            @foreach (var dept in _departments)
+                            {
+                                <MudSelectItem T="long" Value="@dept.Id">
+                                    @dept.Name
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <!-- ROLE -->
+                    <MudItem xs="12">
+                        <MudSelect T="long"
+                                   Label="@Messages.Role"
+                                   @bind-Value="_model.RoleId"
+                                   Variant="Variant.Outlined"
+                                   ToStringFunc="@GetRoleName"
+                                   Required="true"
+                                   RequiredError=@Messages.FieldRequired
+                                   For="@(() => _model.RoleId)">
+
+                            <MudSelectItem T="long" Value="0" Disabled="true">
+                                @Messages.SelectRole
+                            </MudSelectItem>
+
+                            @foreach (var role in _roles)
+                            {
+                                <MudSelectItem T="long" Value="@role.Id">
+                                    @role.RoleName
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                   
+                </MudGrid>
+            </EditForm>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Disabled="@_isLoadingData">@Messages.Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SubmitAsync"
+                   Disabled="@(_isSubmitting || _isLoadingData || !IsFormValid())">
+            @Messages.AddUser
+        </MudButton>
+    </DialogActions>
+</MudDialog>

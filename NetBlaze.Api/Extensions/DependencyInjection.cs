@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Fido2NetLib;
+using Fido2NetLib.Objects;
+using Hangfire;
+using Hangfire.MySql;
 using Microsoft.Extensions.Options;
 using NetBlaze.Application.Extensions;
 using NetBlaze.Domain.Entities.Identity;
@@ -24,6 +27,7 @@ namespace NetBlaze.Api.Extensions
 
             var supportedCultures = new[] { LanguageCode.ARABIC_CODE, LanguageCode.ENGLISH_CODE };
 
+
             builder.Services.Configure<RequestLocalizationOptions>(options =>
             {
                 options
@@ -31,6 +35,19 @@ namespace NetBlaze.Api.Extensions
                     .AddSupportedCultures(supportedCultures)
                     .AddSupportedUICultures(supportedCultures);
             });
+            builder.Services.AddHangfire(config =>
+            {
+                config.UseStorage(
+                    new MySqlStorage(
+                        builder.Configuration.GetConnectionString("Hangfire"),
+                        new MySqlStorageOptions
+                        {
+                            TablesPrefix = "Hangfire_",
+                            QueuePollInterval = TimeSpan.FromSeconds(15)
+                        }));
+            });
+
+            builder.Services.AddHangfireServer();
 
             builder
                 .Services
@@ -54,9 +71,10 @@ namespace NetBlaze.Api.Extensions
                 options.AddPolicy(CORS_POLICY, policy =>
                 {
                     policy
-                        .AllowAnyOrigin()
+                        .WithOrigins("https://localhost:7266") // Your frontend URL
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .AllowCredentials(); // Required for authenticated requests
                 });
             });
         }
@@ -65,15 +83,17 @@ namespace NetBlaze.Api.Extensions
         {
             app.InitializeDatabaseAsync().ConfigureAwait(false);
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
+            //if (app.Environment.IsDevelopment())
+            //{
+                
+            //}
+            app.UseSwagger();
+            app.UseSwaggerUI();
             app.UseHttpsRedirection();
 
             app.UseCors(CORS_POLICY);
+
+            app.UseHangfireDashboard("/hangfire");
 
             app.UseGlobalExceptionHandler(app.Environment);
 

@@ -34,8 +34,11 @@ namespace NetBlaze.Infrastructure.InfraServices
                 new(JwtRegisteredClaimNames.Aud, _jwtSettings.Audience),
                 new(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.AddDays(_jwtSettings.ExpiryInDays).ToUnixTimeSeconds().ToString()),
             };
+            foreach (var role in generateTokenRequestDto.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+            }
 
-            generateTokenRequestDto.Roles.ForEach(x => claims.Add(new(ClaimTypes.Role, x)));
 
             var token = new JwtSecurityToken(
                 claims: claims,

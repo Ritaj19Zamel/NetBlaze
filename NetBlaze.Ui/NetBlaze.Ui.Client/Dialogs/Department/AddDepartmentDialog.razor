@@ -1,0 +1,33 @@
+﻿@using NetBlaze.SharedKernel.SharedResources
+
+<EditForm Model="_addDepartmentRequestDto" OnValidSubmit="SubmitAsync">
+    <DataAnnotationsValidator />
+
+    <MudDialog>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_addDepartmentRequestDto.Name"
+                                  For="@(() => _addDepartmentRequestDto.Name)"
+                                  Label="@Messages.DepartmentName"
+                                  Variant="Variant.Outlined"
+                                  Immediate
+                                  Required
+                                  Class="mb-3" />
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton OnClick="Cancel">
+                @Messages.Cancel
+            </MudButton>
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Color="Color.Primary"
+                       Variant="Variant.Filled">
+                @Messages.AddDepartment
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

@@ -1,0 +1,58 @@
+﻿@using NetBlaze.SharedKernel.SharedResources
+
+<MudDialog>
+    <DialogContent>
+
+        <MudTextField @bind-Value="GetUserResponseDto.DisplayName"
+                      Label="@Messages.FullName"
+                      Variant="Variant.Outlined" />
+
+        <MudTextField Value="GetUserResponseDto.Email"
+                      Label="@Messages.Email"
+                      Disabled="true"
+                      Variant="Variant.Outlined" />
+
+        <MudSelect T="long"
+                   Label="@Messages.Role"
+                   @bind-Value="GetUserResponseDto.RoleId"
+                   ToStringFunc="@GetRoleName"
+                   Variant="Variant.Outlined">
+
+            <MudSelectItem T="long" Value="0" Disabled="true">
+                @Messages.SelectRole
+            </MudSelectItem>
+            @foreach (var role in Roles)
+            {
+                <MudSelectItem T="long" Value="@role.Id">
+                    @role.RoleName
+                </MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="long"
+                   Label="@Messages.Department"
+                   @bind-Value="GetUserResponseDto.DepartmentId"
+                   ToStringFunc="@GetDepartmentName"
+                   Variant="Variant.Outlined">
+
+            <MudSelectItem T="long" Value="0" Disabled="true">
+                @Messages.SelectDepartment
+            </MudSelectItem>
+
+            @foreach (var dept in Departments)
+            {
+                <MudSelectItem T="long" Value="@dept.Id">
+                    @dept.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel">@Messages.Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="SubmitAsync">
+            @Messages.UpdateUser
+        </MudButton>
+    </DialogActions>
+</MudDialog>

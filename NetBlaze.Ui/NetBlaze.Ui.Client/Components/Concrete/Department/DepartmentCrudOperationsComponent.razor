@@ -1,0 +1,71 @@
+﻿@using NetBlaze.SharedKernel.Dtos.Department.Responses
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">
+        @Messages.Departments
+    </MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenAddDialogAsync">
+                    @Messages.AddDepartment
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" md="6" Class="d-flex justify-end">
+                <MudButton Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           Disabled="@_isLoading"
+                           OnClick="LoadDepartmentsAsync">
+                    @Messages.Refresh
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudPaper Width="100%">
+        @if (_isLoading)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate />
+        }
+
+        <MudList T="GetDepartmentResponseDto">
+            @if (_departments?.Any() == true)
+            {
+                @foreach (var department in _departments)
+                {
+                    <MudListItem>
+                        <div class="d-flex justify-space-between align-center w-100">
+                            <MudText Typo="Typo.subtitle1">
+                                @department.Name
+                            </MudText>
+
+                            <div>
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                               Size="Size.Small"
+                                               Color="Color.Primary"
+                                               OnClick="@(() => OpenUpdateDialogAsync(department))" />
+
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                               Size="Size.Small"
+                                               Color="Color.Error"
+                                               OnClick="@(() => DeleteDepartmentAsync(department.Id))" />
+                            </div>
+                        </div>
+                    </MudListItem>
+                    <MudDivider />
+                }
+            }
+            else if (!_isLoading)
+            {
+                <MudListItem>
+                    <MudAlert Severity="Severity.Info">@Messages.NoDepartmentsFound</MudAlert>
+                </MudListItem>
+            }
+        </MudList>
+    </MudPaper>
+</MudContainer>

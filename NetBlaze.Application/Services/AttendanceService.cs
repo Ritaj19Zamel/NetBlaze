@@ -8,6 +8,7 @@ using NetBlaze.Domain.Entities;
 using NetBlaze.Domain.Entities.Views;
 using NetBlaze.SharedKernel.Dtos.Attendence.Requests;
 using NetBlaze.SharedKernel.Dtos.Attendence.Responses;
+using NetBlaze.SharedKernel.Enums;
 using NetBlaze.SharedKernel.HelperUtilities.General;
 using NetBlaze.SharedKernel.SharedResources;
 using System.Net;
@@ -18,37 +19,17 @@ namespace NetBlaze.Application.Services
     {
         private readonly IUserContext _userContext;
         private readonly IUnitOfWork _unitOfWork;
-        
+        private readonly IWorkingDayService _workingDayService;
 
-        public AttendanceService(IUserContext userContext,IUnitOfWork unitOfWork)
+
+        public AttendanceService(IUserContext userContext,IUnitOfWork unitOfWork, IWorkingDayService workingDayService)
         {
             _userContext = userContext;
             _unitOfWork = unitOfWork;
+            _workingDayService = workingDayService;
         }
 
-        #region HelperFunction
-        private async Task<bool> IsTodayVacationAsync(DateOnly todayDate, CancellationToken cancellationToken)
-        {
-            var todayName = DateTime.Now.DayOfWeek;
-
-            var weeklyVacation = await _unitOfWork.Repository.GetSingleAsync<Vacation>(true,
-                v =>v.IsRecurring == true && 
-                v.DayName == todayName
-                ,cancellationToken);
-
-            if (weeklyVacation != null)
-            {
-                return true;
-            }   
-            var vacation = await _unitOfWork.Repository.GetSingleAsync<Vacation>(true,
-                v => v.DayDate != null && 
-                v.DayDate == todayDate
-                , cancellationToken);
-
-            return vacation != null;
-        }
-        #endregion
-       
+        
         public async Task<ApiResponse<object>> AddAttendanceAsync(CancellationToken cancellationToken = default)
         {
             
@@ -59,7 +40,7 @@ namespace NetBlaze.Application.Services
 
             var todayDate = DateOnly.FromDateTime(DateTime.Now);
 
-            bool isVacation = await IsTodayVacationAsync(todayDate, cancellationToken);
+            bool isVacation = (bool)await _workingDayService.IsVacationDayAsync(todayDate, cancellationToken);
 
             if (isVacation)
             {
@@ -113,9 +94,15 @@ namespace NetBlaze.Application.Services
         public async Task<ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>>GetCheckInViolations(GetCheckInViolationsRequestDto getCheckInViolationsRequestDto
             , CancellationToken cancellationToken = default)
         {
-            var violationRecords = _unitOfWork.Repository.GetQueryable<CheckInViolationView>().AsNoTracking()
-                .Where(v => v.AttendDate >= getCheckInViolationsRequestDto.FromDate && 
-                v.AttendDate <= getCheckInViolationsRequestDto.ToDate)
+            var baseQuery = _unitOfWork.Repository
+                                .GetQueryable<CheckInViolationView>()
+                                .AsNoTracking()
+                                .Where(v =>
+                                    v.AttendDate >= getCheckInViolationsRequestDto.FromDate &&
+                                    v.AttendDate <= getCheckInViolationsRequestDto.ToDate);
+
+            var groupedQuery =
+                baseQuery
                 .GroupBy(v => new
                 {
                     v.UserId,
@@ -124,31 +111,49 @@ namespace NetBlaze.Application.Services
                     v.PolicyName,
                     v.PolicyCode
                 })
-                .Select(v => new GetCheckInViolationResponseDto
+                .Select(g => new GetCheckInViolationResponseDto
                 {
-                    UserId = v.Key.UserId,
-                    UserName = v.Key.UserName,
-                    PolicyId = v.Key.PolicyId,
-                    PolicyName = v.Key.PolicyName,
-                    PolicyCode = v.Key.PolicyCode,
-                    ViolationsCount = v.Count(),
-                    TotalViolationValue = v.Sum(x => x.ViolationValue),
-                })
-                .OrderBy(x => x.UserName);
+                    UserId = g.Key.UserId,
+                    UserName = g.Key.UserName,
+                    PolicyId = g.Key.PolicyId,
+                    PolicyName = g.Key.PolicyName,
+                    PolicyCode = g.Key.PolicyCode,
 
-            if (violationRecords == null || !violationRecords.Any())
+                    ViolationStatus =
+                        g.Any(x => x.IsApplied == null) ? ViolationStatus.Pending :
+                        g.Any(x => x.IsApplied == true) ? ViolationStatus.Applied :
+                        ViolationStatus.Rejected,
+
+                    ViolationsCount = g.Count(),
+                    TotalViolationValue = g.Sum(x => x.ViolationValue)
+                });
+
+            if (getCheckInViolationsRequestDto.ViolationStatus.HasValue)
             {
-                return ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>.ReturnFailureResponse(Messages.ViolationRecordsNotFound, HttpStatusCode.NotFound);
+                groupedQuery =
+                    groupedQuery.Where(x => x.ViolationStatus == getCheckInViolationsRequestDto.ViolationStatus.Value);
             }
 
-            var result = await violationRecords.PaginatedListAsync(getCheckInViolationsRequestDto.Pagination.PageNumber
+            groupedQuery = groupedQuery.OrderBy(x => x.UserName);
+
+            if (!await groupedQuery.AnyAsync(cancellationToken))
+            {
+                return ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>
+                    .ReturnFailureResponse(
+                        Messages.ViolationRecordsNotFound,
+                        HttpStatusCode.NotFound);
+            }
+
+
+
+            var result = await groupedQuery.PaginatedListAsync(getCheckInViolationsRequestDto.Pagination.PageNumber
                 , getCheckInViolationsRequestDto.Pagination.PageSize);
 
             return ApiResponse<PaginatedList<GetCheckInViolationResponseDto>>.ReturnSuccessResponse(result);
 
         }
 
-        public async Task<object> ApprovePolicyRequestAsync(ApprovePolicyRequestDto approvePolicyRequestDto,
+        public async Task<ApiResponse<object>> ApprovePolicyRequestAsync(ApprovePolicyRequestDto approvePolicyRequestDto,
             CancellationToken cancellationToken)
         {
             var violations = await _unitOfWork.Repository
@@ -158,7 +163,13 @@ namespace NetBlaze.Application.Services
                                 v.PolicyId == approvePolicyRequestDto.PolicyId &&
                                 v.AttendDate >= approvePolicyRequestDto.FromDate &&
                                 v.AttendDate <= approvePolicyRequestDto.ToDate)
-                            .Select(v => v.AttendanceId)
+                            .Select(v => new AttendencePolicyAction
+                            {
+                                AttendenceId = v.AttendanceId,
+                                PolicyId = approvePolicyRequestDto.PolicyId,
+                                IsApplied = approvePolicyRequestDto.IsApplied,
+                                Clarification = approvePolicyRequestDto.Clarification
+                            })
                             .ToListAsync(cancellationToken);
 
             if (!violations.Any())
@@ -166,21 +177,52 @@ namespace NetBlaze.Application.Services
                 return ApiResponse<object>.ReturnFailureResponse(Messages.PolicyAlreadyReviewed, HttpStatusCode.BadRequest);
             }
 
-            var policyActions = violations.Select(attendanceId =>
-                                   new AttendencePolicyAction
-                                   {
-                                       AttendenceId = attendanceId,
-                                       PolicyId = approvePolicyRequestDto.PolicyId,
-                                       IsApplied = approvePolicyRequestDto.IsApplied,
-                                       Clarification = approvePolicyRequestDto.Clarification
-                                   }).ToList();
-
-            _unitOfWork.Repository.AddRange(policyActions);
+            await _unitOfWork.Repository.AddRangeAsync(violations);
 
             await _unitOfWork.Repository.CompleteAsync(cancellationToken);
 
             return ApiResponse<object>.ReturnSuccessResponse(Messages.PolicyReviewRecorded);
         }
 
+        public async Task<ApiResponse<GetTodayAttendanceResponseDto>> GetTodayAttendanceAsync(CancellationToken cancellationToken = default)
+        {
+            if (!_userContext.IsAuthenticated || _userContext.UserId == 0)
+            {
+                return ApiResponse<GetTodayAttendanceResponseDto>.ReturnFailureResponse(Messages.InvalidToken, HttpStatusCode.Unauthorized);
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            var attendance = await _unitOfWork.Repository
+                .GetQueryable<AttendanceView>()
+                .AsNoTracking()
+                .Where(a =>
+                    a.UserId == _userContext.UserId &&
+                    a.AttendDate == today)
+                .OrderBy(a => a.AttendDate)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (attendance == null)
+            {
+                return ApiResponse<GetTodayAttendanceResponseDto>
+                    .ReturnSuccessResponse(new GetTodayAttendanceResponseDto
+                    {
+                        Date = today,
+                        CheckIn = null,
+                        CheckOut = null
+                    });
+            }
+
+            return ApiResponse<GetTodayAttendanceResponseDto>
+                .ReturnSuccessResponse(new GetTodayAttendanceResponseDto
+                {
+                    Date = attendance.AttendDate,
+                    CheckIn = attendance.CheckIn,
+                    CheckOut = attendance.CheckOut
+                });
+        }
+
+
     }
+
 }

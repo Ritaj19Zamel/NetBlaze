@@ -1,0 +1,133 @@
+﻿@page "/attendance/checkin-violations"
+@using Microsoft.AspNetCore.Authorization
+@using NetBlaze.SharedKernel.Dtos.Attendence.Requests
+@using NetBlaze.SharedKernel.Dtos.Attendence.Responses
+@using NetBlaze.SharedKernel.Enums
+@using NetBlaze.SharedKernel.HelperUtilities.General
+@namespace NetBlaze.Ui.Client.Pages.Attendance
+
+<PageTitle>@Messages.CheckInViolations</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+
+    <MudText Typo="Typo.h5" Class="mb-3">
+        @Messages.CheckInViolations
+    </MudText>
+
+    <!-- Filters -->
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudDatePicker Label="@Messages.FromDate"
+                               DateFormat="yyyy-MM-dd"
+                               @bind-Date="_fromDate"
+                               Variant="Variant.Outlined" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudDatePicker Label="@Messages.ToDate"
+                               DateFormat="yyyy-MM-dd"
+                               @bind-Date="_toDate"
+                               Variant="Variant.Outlined" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudSelect T="ViolationStatus ?"
+                           Label="@Messages.Status"
+                           @bind-Value="_status"
+                           Variant="Variant.Outlined"
+                           Clearable="true">
+
+                    @foreach (var status in Enum.GetValues<ViolationStatus>())
+                    {
+                        <MudSelectItem T="ViolationStatus ?" Value="status">
+                            @EnumLocalizationHelper.LocalizeEnum(status, Localizer)
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+
+
+            </MudItem>
+
+            <MudItem xs="12" md="4" Class="d-flex align-end">
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           StartIcon="@Icons.Material.Filled.Search"
+                           OnClick="ReloadTable">
+                    @Messages.Search
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Table -->
+    <MudPaper>
+        <MudTable T="GetCheckInViolationResponseDto"
+                  @ref="_table"
+                  ServerData="LoadViolationsAsync"
+                  Hover Dense Bordered
+                  Loading="_isLoading">
+
+            <HeaderContent>
+                <MudTh>@Messages.EmployeeName</MudTh>
+                <MudTh>@Messages.PolicyName</MudTh>
+                <MudTh>@Messages.PolicyCode</MudTh>
+                <MudTh Align="Align.Center">@Messages.ViolationsCount</MudTh>
+                <MudTh Align="Align.Center">@Messages.TotalViolationValue</MudTh>
+                <MudTh Align="Align.Center">@Messages.Actions</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@context.UserName</MudTd>
+                <MudTd>@context.PolicyName</MudTd>
+                <MudTd>@context.PolicyCode</MudTd>
+                <MudTd Align="Align.Center">@context.ViolationsCount</MudTd>
+                <MudTd Align="Align.Center">@context.TotalViolationValue</MudTd>
+
+                <MudTd Align="Align.Center">
+                    @if (context.ViolationStatus == ViolationStatus.Pending)
+                    {
+                        <MudStack Direction="Row" Spacing="1" Justify="Justify.Center">
+                            <MudButton Color="Color.Success"
+                                       Size="Size.Small"
+                                       Variant="Variant.Filled"
+                                       OnClick="@(() => OpenDecisionDialog(context, true))">
+                                @Messages.Approve
+                            </MudButton>
+
+                            <MudButton Color="Color.Error"
+                                       Size="Size.Small"
+                                       Variant="Variant.Filled"
+                                       OnClick="@(() => OpenDecisionDialog(context, false))">
+                                @Messages.Reject
+                            </MudButton>
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudChip T="string"
+                                 Color="@(context.ViolationStatus == ViolationStatus.Applied
+                                                              ? Color.Success
+                                                              : Color.Error)">
+                        @EnumLocalizationHelper.LocalizeEnum(context.ViolationStatus, Localizer)
+                    </MudChip>
+                                        }
+                </MudTd>
+
+
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudAlert Severity="Severity.Info">
+                    @Messages.ViolationRecordsNotFound
+                </MudAlert>
+            </NoRecordsContent>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+
+        </MudTable>
+    </MudPaper>
+
+</MudContainer>

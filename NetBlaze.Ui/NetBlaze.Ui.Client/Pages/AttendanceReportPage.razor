@@ -1,0 +1,98 @@
+﻿@page "/attendencereport"
+@using Microsoft.AspNetCore.Authorization
+@using NetBlaze.SharedKernel.Dtos.Attendence.Responses
+@using NetBlaze.SharedKernel.HelperUtilities.General
+
+<PageTitle>@Messages.AttendanceReport</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+
+    <MudPaper Elevation="0" Class="page-header">
+        <MudText Typo="Typo.h5" Class="page-title">
+            @Messages.AttendanceReport
+        </MudText>
+    </MudPaper>
+
+
+    <!-- Filters -->
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudDatePicker @bind-Date="_fromDate"
+                               DateFormat="yyyy-MM-dd"
+                                Label="@Messages.FromDate"
+                                Variant="Variant.Outlined" />
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudDatePicker @bind-Date="_toDate"
+                               DateFormat="yyyy-MM-dd"
+                               Label="@Messages.ToDate"
+                               Variant="Variant.Outlined" />
+            </MudItem>
+
+            <MudItem xs="12" md="4" Class="d-flex align-end">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Search"
+                           OnClick="@ReloadTable">
+                    @Messages.Search
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <!-- Table -->
+    <MudPaper Class="pa-2">
+
+        <MudTable T="GetAttendanceResponseDto"
+                  @ref="_table"
+                  ServerData="LoadAttendanceAsync"
+                  Dense
+                  Hover
+                  Bordered
+                  Striped
+                  Loading="_isLoading">
+
+            <HeaderContent>
+                <MudTh>@Messages.EmployeeName</MudTh>
+                <MudTh>@Messages.Date</MudTh>
+                <MudTh>@Messages.CheckIn</MudTh>
+                <MudTh>@Messages.CheckOut</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@context.DisplayName</MudTd>
+
+                <MudTd>
+                    @context.Date.ToString("yyyy-MM-dd")
+                </MudTd>
+
+                <MudTd>
+                    @(context.CheckIn.HasValue
+                                        ? context.CheckIn.Value.ToString("hh\\:mm tt")
+                                        : "—")
+                </MudTd>
+
+                <MudTd>
+                    @(context.CheckOut.HasValue
+                                        ? context.CheckOut.Value.ToString("hh\\:mm tt")
+                                        : "—")
+                </MudTd>
+
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudAlert Severity="Severity.Info">
+                    @Messages.NoAttendanceRecordsNotFound
+                </MudAlert>
+            </NoRecordsContent>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+
+        </MudTable>
+
+    </MudPaper>
+</MudContainer>

@@ -1,0 +1,71 @@
+﻿@using NetBlaze.SharedKernel.Dtos.User.Responses
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+
+    <MudText Typo="Typo.h4" Class="mb-4">
+        Users
+    </MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenAddDialogAsync">
+                    @Messages.AddUser
+                </MudButton>
+            </MudItem>
+
+            <MudItem xs="12" md="6" Class="d-flex justify-end">
+                <MudButton Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           OnClick="@(() => _table?.ReloadServerData())"
+                           Disabled="@_isLoading">
+                    @Messages.Refresh
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudPaper Class="pa-2">
+        <MudTable T="GetUserResponseDto"
+                  @ref="_table"
+                  ServerData="LoadServerData"
+                  Dense Hover Bordered Striped
+                  Loading="_isLoading">
+
+            <HeaderContent>
+                <MudTh>@Messages.FullName</MudTh>
+                <MudTh>@Messages.Email</MudTh>
+                <MudTh>@Messages.Role</MudTh>
+                <MudTh>@Messages.Department</MudTh>
+                <MudTh Align="Align.Center">@Messages.Actions</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@context.DisplayName</MudTd>
+                <MudTd>@context.Email</MudTd>
+                <MudTd>@context.Role</MudTd>
+                <MudTd>@context.Department</MudTd>
+
+                <MudTd Align="Align.Center">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => OpenUpdateDialogAsync(context))" />
+
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(() => DeleteUserAsync(context.Id))" />
+                </MudTd>
+            </RowTemplate>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+
+        </MudTable>
+    </MudPaper>
+
+</MudContainer>

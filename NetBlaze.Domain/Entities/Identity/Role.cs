@@ -26,7 +26,6 @@ namespace NetBlaze.Domain.Entities.Identity
         // Navigational Properties
 
         public ICollection<UserRole> UserRoles { get; private set; } = [];
-        public ICollection<RolePermission> RolePermissions { get; set; } = [];
 
 
 

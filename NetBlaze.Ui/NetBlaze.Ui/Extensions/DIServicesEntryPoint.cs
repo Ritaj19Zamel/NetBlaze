@@ -51,6 +51,7 @@ namespace NetBlaze.Ui.Extensions
 
             app.MapControllers();
 
+            // Map Blazor components - allow anonymous since authentication is handled client-side
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode()
                 .AddInteractiveWebAssemblyRenderMode()

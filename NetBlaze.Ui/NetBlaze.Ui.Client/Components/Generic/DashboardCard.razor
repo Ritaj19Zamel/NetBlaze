@@ -1,0 +1,48 @@
+﻿@namespace NetBlaze.Ui.Client.Components.Generic
+@using Microsoft.AspNetCore.Components.Authorization
+
+@if (!string.IsNullOrEmpty(Policy))
+{
+    <AuthorizeView Policy="@Policy">
+        <Authorized>
+            <MudCard Class="dashboard-card"
+                     Style="cursor:pointer"
+                     OnClick="HandleClick">
+                <MudCardContent Class="text-center pa-6">
+                    <MudAvatar Size="Size.Large"
+                               Color="@Color"
+                               Variant="Variant.Filled"
+                               Class="mb-3">
+                        <MudIcon Icon="@Icon" Size="Size.Large" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.h6">@Title</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        @Description
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </Authorized>
+        <NotAuthorized>
+            <!-- Return nothing, MudGrid will adjust automatically -->
+        </NotAuthorized>
+    </AuthorizeView>
+}
+else
+{
+    <MudCard Class="dashboard-card"
+             Style="cursor:pointer"
+             OnClick="HandleClick">
+        <MudCardContent Class="text-center pa-6">
+            <MudAvatar Size="Size.Large"
+                       Color="@Color"
+                       Variant="Variant.Filled"
+                       Class="mb-3">
+                <MudIcon Icon="@Icon" Size="Size.Large" />
+            </MudAvatar>
+            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @Description
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+}
